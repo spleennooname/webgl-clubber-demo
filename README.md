@@ -1,10 +1,10 @@
 A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhythm & redirect output through GLSL shader. 
 
-![screenshot](https://spleennooname.github.io/webgl-clubber-demo/img/social.jpg)
+![screenshot](https://spleennooname.github.io/webg-clubber-demo/img/social.jpg)
 
 ### Demo
 
-You can try a different soundcloud id, from URL:
+You can try a different soundcloud id, from URL. Example:
 
 ```
 http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
@@ -24,7 +24,7 @@ http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
 
 ### Todos
 
- - experiment with [wave.frag](https://github.com/wizgrav)) new combinations
+ - experiment with frag.shader [wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) new combinations
 
 ### License
 
