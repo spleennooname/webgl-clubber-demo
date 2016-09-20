@@ -21,6 +21,15 @@ uniform vec4 iMusicHigh;
 
 #define N_WAVES 6
 
+//noise
+float rand(float n){return fract(sin(n) * 43758.5453123);}
+
+float noise(float p){
+    float fl = floor(p);
+  float fc = fract(p);
+    return mix(rand(fl), rand(fl + 1.0), fc);
+}
+
 float gauss(float s, float x){
     return (0.85)*exp(-x*x/(2.*s*s));
 }
@@ -55,13 +64,13 @@ float wave(float x, int i, vec4 low, vec4 mid, vec4 high){
     float i_f = float(i);
 
     //
-    float note3 = (low[3] + mid[3] + high[3])/3.;
+    float note3 = ( mid[3] + high[3]);
 	float note2 = (low[2] + mid[2] + high[2])/3.;
     float note1 = (low[1] + mid[1] + high[1])/3.;
     float note0 = (low[0] + mid[0] + high[0])/3.;
 
-    float y = ( mix(1.0, 4.0, note3) - .5*i_f )*sin( x*mix(1.5, 2.0+i_f, mid[1]) + .75*time - i_f*mix(-.6, .6, mid[2]+low[0]) ) ;
-    y *= ( mix(.1, .25, low[1]) + 0.35*cos(x) );
+    float y = ( mix(1.0, 4.0+ rand(mid[1]), note3) - .5*i_f )*sin( x*mix(1.25, 3.25+i_f, mid[1] + low[0] ) + .75*time - i_f*mix(-.75, .75, mid[2]+low[0]) ) ;
+    y *= ( mix(.1, .25, low[1]) + 0.35*high[0]*cos(x) );
 
     return y;
 }
