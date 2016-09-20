@@ -1,0 +1,173 @@
+requirejs.config({
+
+    baseUrl: './js',
+
+    text: {
+        useXhr: function(url, protocol, hostname, port) {
+            // allow cross-domain requests
+            // remote server allows CORS
+            return true;
+        }
+    },
+
+    shim: {
+        'twgl': {
+            exports: "twgl",
+            deps: ["raf"]
+        },
+
+        'clubber': {
+            exports: "Clubber"
+        },
+
+        'twgldemo': {
+            exports: "TWGLDemo"
+        },
+
+        'detector':{
+            exports : "Detector"
+        }
+    },
+
+    paths: {
+        "domready": "./lib/require/domReady",
+        "json": "./lib/require/json",
+        "text": "./lib/require/text",
+        "raf": "./lib/raf",
+        "clubber": "./lib/clubber",
+        "twgldemo": "./TWGLDemo",
+        "twgl": "./lib/twgl.min",
+        "detector" : "./lib/Detector"
+    }
+});
+
+
+requirejs([
+    "domready",
+    "detector",
+    "TWGLDemo",
+    "clubber",
+    "text!../shaders/wave.frag"
+
+], function(domReady, Detector, TWGLDemo, clubber, text /*, require*/ ) {
+
+    var audio,
+        clubber,
+        bands,
+        demo,
+
+        time = 0,
+        id_soundcloud = 0,
+
+        delta, now,
+        then = Date.now(),
+        fps = 60,
+        fr = 1000 / fps,
+
+        ID_DEFAULT ="135094819",
+
+        ready = function() {
+
+            if( !Detector.webgl){                
+                var msg = Detector.getWebGLErrorMessage();
+                document.body.appendChild(msg);
+                return;
+            }
+
+            audio = document.getElementById("audio");
+            audio.crossOrigin = "anonymous";
+
+            clubber = new Clubber({
+                size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
+            });
+            clubber.listen(audio);
+
+
+            
+
+            var fragSrc = text;
+            var vertSrc = null;
+
+            demo = new TWGLDemo(document.getElementById("canvas"), vertSrc, fragSrc);
+
+            bands = {
+
+                low: clubber.band({
+                    from: 5, // minimum midi note to take into account
+                    to: 32, // maximum midi note, up to 160.
+                    smooth: [0.2, 0.2, 0.2, 0.2] // Exponential smoothing factors for each of the four returned values
+                }),
+
+                mid: clubber.band({
+                    from: 32,
+                    to: 48,
+                    smooth: [0.1, 0.1, 0.1, 0.1]
+                }),
+
+                high: clubber.band({
+                    from: 48,
+                    to: 128,
+                    smooth: [0.2, 0.2, 0.2, 0.2]
+                })
+            };
+
+            id_soundcloud = getParameterByName("id") || ID_DEFAULT;
+            //if (id_soundcloud) document.getElementById("tid").value = id_soundcloud;
+
+            clubber.update();
+            play();
+
+            then = Date.now();
+            render( then);
+        },
+
+        play = function(src) {
+
+            var url = 'http://api.soundcloud.com/tracks/' + parseInt(id_soundcloud) + '/stream' +
+                '?client_id=56c4f3443da0d6ce6dcb60ba341c4e8d';
+            audio.src = url;
+            audio.play();
+        },
+
+        maximize = function() {
+            var el = document.querySelector("canvas");
+            var fs = el.webkitRequestFullScreen || el.requestFullScreen || msRequestFullScreen;
+            fs.call(el);
+        },
+
+        getParameterByName = function(name) {
+            name = name.replace(/[\[]/, "\\\[").replace(/[\]]/, "\\\]");
+            var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                results = regex.exec(location.search);
+            return results == null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+        },
+
+        render = function() {
+
+            requestAnimationFrame(render);
+
+            //frame control
+            now = Date.now();
+            delta = now - then;
+
+            if (delta > fr) {
+
+                then = now - (delta % fr);
+
+                time += 0.015;
+
+                clubber.update();
+
+                var data = {
+                    iMusicLow: bands["low"](time),
+                    iMusicMid: bands["mid"](time),
+                    iMusicHigh: bands["high"](time)
+                }
+
+                demo.update(time, data);
+            }
+        }
+
+    domReady(ready);
+
+});

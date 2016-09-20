@@ -1,0 +1,75 @@
+       
+       @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css");
+       @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css");
+       @import url("https://fonts.googleapis.com/css?family=EB+Garamond");
+
+       * {
+           margin: 0;
+           padding: 0;
+       }
+       
+       body {
+           font-family: 'EB Garamond', serif;
+           overflow: hidden;
+       }
+       
+       #header {
+           position: fixed;
+           font-size: 1.5rem;
+       }
+       
+       #header span {
+           vertical-align: middle;
+           display: inline-block;
+           font-size: 1.35rem;
+           line-height: 2.5rem;
+           padding: 0 1.0rem;
+       }
+       
+       #header .fa {
+           vertical-align: middle;
+           display: inline-block;
+           font-size: 2.5rem;
+           line-height: 2.5rem;
+       }
+
+        #header .tid{
+          display: none
+        }
+       
+       audio {
+           position: fixed;
+           display: none;
+       }
+       
+       body,
+       canvas {
+           width: 100vw;
+           height: 100vh;
+       }
+       
+       #header a {
+          color: black
+       }
+       
+       #header img {
+           vertical-align: middle;
+       }
+       /* webgl error */
+       
+       .webgl-error {
+           position: fixed;
+           z-index: 666;
+           margin: auto;
+           top: 0;
+           left: 0;
+           bottom: 0;
+           right: 0;
+           font-size: 1.2rem;
+           line-height: 1.4rem;
+           color: black;
+           width: 512px;
+           height: 3rem;
+           padding: 2rem;
+           border: 1px solid #ddd;
+       }
