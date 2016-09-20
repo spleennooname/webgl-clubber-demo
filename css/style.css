@@ -17,6 +17,23 @@
            position: fixed;
            font-size: 1.5rem;
        }
+
+        .social {
+           position: fixed;
+           bottom:0;
+           right: 0;
+           color: black;
+           padding: .5rem;
+           font-size: 1.5rem;
+       }
+
+       .social a{
+        display: inline-block;
+        padding: 0 .5rem;
+        color: black;
+        font-size: 2rem;
+       }
+
        
        #header span {
            vertical-align: middle;
