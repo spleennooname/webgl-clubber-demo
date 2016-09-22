@@ -19,14 +19,14 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define resolution iResolution.xy
 
-#define N_WAVES 6
+#define N_WAVES 5
 
 //noise
 float rand(float n){return fract(sin(n) * 43758.5453123);}
 
 float noise(float p){
     float fl = floor(p);
-  float fc = fract(p);
+    float fc = fract(p);
     return mix(rand(fl), rand(fl + 1.0), fc);
 }
 
@@ -69,8 +69,8 @@ float wave(float x, int i, vec4 low, vec4 mid, vec4 high){
     float note1 = (low[1] + mid[1] + high[1])/3.;
     float note0 = (low[0] + mid[0] + high[0])/3.;
 
-    float y = ( mix(1.0, 4.0+ rand(mid[1]), note3) - .5*i_f )*sin( x*mix(1.25, 3.25+i_f, mid[1] + low[0] ) + .75*time - i_f*mix(-.75, .75, mid[2]+low[0]) ) ;
-    y *= ( mix(.1, .25, low[1]) + 0.35*high[0]*cos(x) );
+    float y = ( mix(1.0, 6.0, note0) - .5*i_f )*sin( x*mix(1.25, 4.25+i_f, mid[1] + 2.*low[0] ) + .75*time - i_f*mix(-.75, .75, mid[2]+low[0]) ) ;
+    y *= ( mix(.1, .25, low[2]) + 0.55*high[0]*cos(x) );
 
     return y;
 }
@@ -82,7 +82,6 @@ void main(void) {
     uv.y *= 3.2;
     uv.x *= 2.1;
 	
-    float yf = 0.*d2y(distance(uv.y*2., f(uv.x)));
     vec3 col = vec3(0.);
     
     for(int i = 0; i<N_WAVES; ++i){
@@ -90,9 +89,9 @@ void main(void) {
         float i_f = float(i)*0.5 + 1.;
 
         float y = d2y2( distance( 2.*uv.y, wave(uv.x, i, iMusicLow, iMusicMid, iMusicHigh) ), i_f );
-        col += 0.95*y;// *hsv2rgb(vec3(0.00015*time+i_f*0.1-0.05, 0.6,1.0));
+        col += y;
         
     }
     
-    gl_FragColor = vec4( vec3(yf)+(233./255.)-col, 1.0);
+    gl_FragColor = vec4( (233./255.)-col, 1.0);
 }

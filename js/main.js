@@ -26,6 +26,10 @@ requirejs.config({
 
         'detector':{
             exports : "Detector"
+        },
+
+        'rstats':{
+            exports : "rStats"
         }
     },
 
@@ -37,7 +41,8 @@ requirejs.config({
         "clubber": "./lib/clubber",
         "twgldemo": "./TWGLDemo",
         "twgl": "./lib/twgl.min",
-        "detector" : "./lib/Detector"
+        "detector" : "./lib/Detector",
+        "rstats" : "./lib/rStats"
     }
 });
 
@@ -45,16 +50,18 @@ requirejs.config({
 requirejs([
     "domready",
     "detector",
+    "rstats",
     "TWGLDemo",
     "clubber",
     "text!../shaders/wave.frag"
 
-], function(domReady, Detector, TWGLDemo, clubber, text /*, require*/ ) {
+], function(domReady, Detector, rStats, TWGLDemo, clubber, text /*, require*/ ) {
 
     var audio,
         clubber,
         bands,
         demo,
+        stats,
 
         time = 0,
         id_soundcloud = 0,
@@ -63,6 +70,23 @@ requirejs([
         then = Date.now(),
         fps = 60,
         fr = 1000 / fps,
+
+         rstats_obj = {
+            values: {
+                frame: {
+                    caption: 'frame time (ms)',
+                    over: 16.67
+                },
+                raf: {
+                    caption: 'last rAF (ms)'
+                },
+                fps: {
+                    caption: 'frame rate (FPS)',
+                    below: 30
+                }
+            }
+        },
+
 
         ID_DEFAULT ="135094819",
 
@@ -87,6 +111,8 @@ requirejs([
 
             var fragSrc = text;
             var vertSrc = null;
+
+            stats = new rStats(rstats_obj);
 
             demo = new TWGLDemo(document.getElementById("canvas"), vertSrc, fragSrc);
 
@@ -144,6 +170,10 @@ requirejs([
 
         render = function() {
 
+            stats('frame').start();
+            stats('rAF').tick();
+            stats('FPS').frame();
+
             requestAnimationFrame(render);
 
             //frame control
@@ -166,6 +196,9 @@ requirejs([
 
                 demo.update(time, data);
             }
+
+            stats('frame').end();
+            stats().update();
         }
 
     domReady(ready);

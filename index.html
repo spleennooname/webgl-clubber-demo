@@ -10,14 +10,12 @@
     <meta name="MobileOptimized" content="320">
     <meta name="author" content="Andrea Bovo <spleen666@gmail.com> - spleen.noo.name">
     <meta name="description" content="A WebGL Audio Visualizer demo using Clubber (javascript rhythm analysis library) and TWGL.js.">
-
-    <!-- Facebook Metas--> 
+    <!-- Facebook Metas-->
     <meta property="og:url" content="http://spleennooname.github.io/webgl-clubber-demo/index.html">
     <meta property="og:type" content="website">
     <meta property="og:title" content="WebGL Audio Visualizer demo - by Andrea Bovo <spleen666@gmail.com> - spleen.noo.name">
     <meta property="og:description" content="A WebGL Audio Visualizer demo using Clubber (javascript rhythm analysis library) and TWGL.js. ">
     <meta property="og:image" content="https://spleennooname.github.io/webg-clubber-demo/img/social.jpg">
-
     <!-- Twitter Metas-->
     <meta property="twitter:card" content="summary_large_image">
     <meta property="twitter:creator" content="@vivacchio">
@@ -26,37 +24,35 @@
     <meta property="twitter:image" content="https://spleennooname.github.io/webg-clubber-demo/img/social.jpg">
     <meta property="twitter:image:width" content="640">
     <meta property="twitter:image:height" content="630">
-
     <!-- Chrome on Android -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="WebGL audio visualizer - Clubber">
-
     <!-- Safari on iOS -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black">
     <meta name="apple-mobile-web-app-title" content="WebGL audio visualizer - Clubber">
-
     <!-- Windows 8 -->
     <!-- <meta name="msapplication-TileImage" content="images/touch/ms-touch-icon.png"> -->
     <meta name="msapplication-TileColor" content="#FFFFFF">
     <meta name="msapplication-tap-highlight" content="no">
     <meta name="theme-color" content="#000000">
-
     <title>spleen.noo.name - clubber demo + soundcloud</title>
+    <link media="all" href='rStats.css' rel='stylesheet' type='text/css'>
     <link media="all" href='css/style.css' rel='stylesheet' type='text/css'>
 </head>
 
 <body>
     <audio id="audio" controls></audio>
     <div id="header" class="header" data-id-soundcloud="135094819">
-        <i class="fa fa-soundcloud" aria-hidden="true"></i><span>playing: <a href="https://soundcloud.com/take-over-time/tupac-ft-the-outlawz-enemies?in=ricky-oran/sets/2pac" target="_blank">TuPac Ft. The Outlawz - Enemies With Me (R-Tistic Remix)</a></span>
+        <!--<i class="fa fa-soundcloud" aria-hidden="true"></i>-->
+        <!--<span>playing: <a href="https://soundcloud.com/take-over-time/tupac-ft-the-outlawz-enemies?in=ricky-oran/sets/2pac" target="_blank">TuPac Ft. The Outlawz - Enemies With Me (R-Tistic Remix)</a></span> -->
         <!--<input id="tid" type="text" placeholder="enter track id" style="width: 100px;" value="135094819" />-->
         <!--<button onclick="play()">Play</button>
           <button onclick="maximize()">Full</button>
           <img src="soundcloud.png"/>-->
     </div>
     <canvas id="canvas"></canvas>
-    <div class="social"><a href="https://github.com/spleennooname/webg-clubber-demo"><i class="fa fa-github" aria-hidden="true"></i></a><a href="https://twitter.com/vivacchio"><i class="fa fa-twitter" aria-hidden="true"></i></a></div>
+    <div class="social"><a title="Github project page" href="https://github.com/spleennooname/webg-clubber-demo"><i class="fa fa-github" aria-hidden="true"></i></a><a href="https://twitter.com/vivacchio" title="my twitter account"><i class="fa fa-twitter" aria-hidden="true"></i></a></div>
     <script data-main="js/main" src="js/lib/require/require.min.js"></script>
 </body>
 </html>

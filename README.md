@@ -4,15 +4,16 @@ A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhyth
 
 ### Demo
 
-You can try a different soundcloud id, from URL. Example:
+Try a different sound-cloud id with URL parameter. Example:
 
 ```
 http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
 ```
+(go to soundcloud track page, click *share* then select *embed* and grab the markup-code)
 
 ### Techs
 
-  * Custom GLSL Shader
+  * Custom GLSL fragment shader ([wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) )
   * AMD support with RequireJS
   * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
   * [Clubber](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
@@ -24,7 +25,9 @@ http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
 
 ### Todos
 
- - experiment with frag.shader [wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) new combinations
+* tweak sin wave parameters
+* add fullscreen cta
+* add fps counter
 
 ### License
 
