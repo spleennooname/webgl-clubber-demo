@@ -19,7 +19,7 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define resolution iResolution.xy
 
-#define N_WAVES 4
+#define N_WAVES 3
 #define GREY 220./255.
 
 //noise
@@ -43,12 +43,8 @@ float blur(float dist, float width, float blur, float intens){
     return b*intens;
 }
 
-float d2y(float d){ 
-    d*= 400.; return 1./(d*d);
-}
-
 float d2y2(float d, float i){
-    float b = 0.5*i+0.0001;
+    float b = 0.75*i+0.0001;
     return blur(d , 0.005, b, 0.45);
 }
 
@@ -66,13 +62,16 @@ float wave(float x, int i, vec4 low, vec4 mid, vec4 high){
     float i_f = float(i);
 
     //
-    float note3 = ( mid[3] + high[3]);
+    float note3 = ( mid[3] + high[3] + low[3])/3.;
 	float note2 = (low[2] + mid[2] + high[2])/3.;
     float note1 = (low[1] + mid[1] + high[1])/3.;
     float note0 = (low[0] + mid[0] + high[0])/3.;
 
-    float y = ( mix(1.0, 6.0, note0) - .5*i_f )*sin( x*mix(1.25, 4.25+i_f, mid[1] + 2.*low[0] ) + .75*time - i_f*mix(-.75, .75, mid[2]+low[0]) ) ;
-    y *= ( mix(.1, .25, low[2]) + 0.55*high[0]*cos(x) );
+    //float y = ( mix(1.0, 4.2, note0) - .5*i_f )*sin( x*mix(1.25, 3.0+i_f, note0 ) + .75*time - i_f*mix(-.75, 4., note0) ) ;
+    //y *= ( mix(.1, .25, note2) + .35*cos(x) );
+
+    //2016 09 27
+    float y = ( mix(0., 2.0, note3+note2) - .5*i_f )*sin( x*2. + .75*time - i_f * mix(-.75, 4., note0)) * (  mix(-2., 2.0, note0 + note3)*cos(x) );
 
     return y;
 }

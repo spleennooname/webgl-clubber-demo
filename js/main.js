@@ -88,7 +88,7 @@ requirejs([
         },
 
 
-        ID_DEFAULT ="135094819",
+        ID_DEFAULT ="5621559",
 
         ready = function() {
 
@@ -102,12 +102,9 @@ requirejs([
             audio.crossOrigin = "anonymous";
 
             clubber = new Clubber({
-                size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
+                size: 2048 // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
             });
-            clubber.listen(audio);
-
-
-            
+            clubber.listen(audio);            
 
             var fragSrc = text;
             var vertSrc = null;
@@ -119,21 +116,21 @@ requirejs([
             bands = {
 
                 low: clubber.band({
-                    from: 5, // minimum midi note to take into account
-                    to: 32, // maximum midi note, up to 160.
-                    smooth: [0.2, 0.2, 0.2, 0.2] // Exponential smoothing factors for each of the four returned values
+                    from: 0, // minimum midi note to take into account
+                    to: 42, // maximum midi note, up to 160.
+                    smooth: [0.1, 0.1, 0.1, 0.1] // Exponential smoothing factors for each of the four returned values
                 }),
 
                 mid: clubber.band({
-                    from: 32,
-                    to: 48,
+                    from: 43,
+                    to: 86,
                     smooth: [0.1, 0.1, 0.1, 0.1]
                 }),
 
                 high: clubber.band({
-                    from: 48,
-                    to: 128,
-                    smooth: [0.2, 0.2, 0.2, 0.2]
+                    from: 86,
+                    to: 127,
+                    smooth: [0.1, 0.1, 0.1, 0.1]
                 })
             };
 
