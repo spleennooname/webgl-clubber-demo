@@ -184,6 +184,7 @@ requirejs([
 
                 then = now - (delta % fr);
 
+
                 time += 0.015;
 
                 clubber.update();
@@ -195,6 +196,8 @@ requirejs([
                 }
 
                 demo.update(time, data);
+
+              
             }
 
             stats('frame').end();

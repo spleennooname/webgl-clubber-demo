@@ -19,10 +19,13 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define resolution iResolution.xy
 
-#define N_WAVES 5
+#define N_WAVES 4
+#define GREY 220./255.
 
 //noise
-float rand(float n){return fract(sin(n) * 43758.5453123);}
+float rand(float n){
+    return fract(sin(n) * 43758.5453123);
+}
 
 float noise(float p){
     float fl = floor(p);
@@ -34,8 +37,7 @@ float gauss(float s, float x){
     return (0.85)*exp(-x*x/(2.*s*s));
 }
 
-float blur(float dist, float width, float blur, float intens){
-   
+float blur(float dist, float width, float blur, float intens){   
     dist = max( abs(dist)-width, 0.);
     float b = gauss(0.02 + width *10.*blur, dist);
     return b*intens;
@@ -77,10 +79,10 @@ float wave(float x, int i, vec4 low, vec4 mid, vec4 high){
 
 void main(void) {
     
-    vec2 uv = (gl_FragCoord.xy / resolution - vec2(0.5)) * vec2(resolution.x / resolution.y, 1.0) * 1.05;
+    vec2 uv = (gl_FragCoord.xy / resolution - vec2(0.5)) * vec2(resolution.x / resolution.y, 1.0);
 
-    uv.y *= 3.2;
-    uv.x *= 2.1;
+    uv.y *= 1.5;
+    uv.x *= 1.75;
 	
     vec3 col = vec3(0.);
     
@@ -88,10 +90,11 @@ void main(void) {
         
         float i_f = float(i)*0.5 + 1.;
 
+
         float y = d2y2( distance( 2.*uv.y, wave(uv.x, i, iMusicLow, iMusicMid, iMusicHigh) ), i_f );
         col += y;
         
     }
     
-    gl_FragColor = vec4( (233./255.)-col, 1.0);
+    gl_FragColor = vec4( GREY - col, 1.0);
 }
