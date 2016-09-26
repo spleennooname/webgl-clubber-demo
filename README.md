@@ -13,8 +13,8 @@ http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
 
 Examples:
 
-[https://soundcloud.com/felipe-forbeck/jhonny-cash-the-man-comes](http://spleennooname.github.io/webgl-clubber-demo/index.html?id=38842752)
-[https://soundcloud.com/the-chemical-brothers/chemical-brothers-01-hey-boy-hey-girl-live-sydney](http://spleennooname.github.io/webgl-clubber-demo/index.html?id=5621559)
+* [https://soundcloud.com/felipe-forbeck/jhonny-cash-the-man-comes](http://spleennooname.github.io/webgl-clubber-demo/index.html?id=38842752)
+* [https://soundcloud.com/the-chemical-brothers/chemical-brothers-01-hey-boy-hey-girl-live-sydney](http://spleennooname.github.io/webgl-clubber-demo/index.html?id=5621559)
 
 
 ### Techs
