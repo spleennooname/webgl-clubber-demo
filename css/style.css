@@ -108,9 +108,11 @@
 
       body{
         background: black;
+        text-align: center;
       }
       canvas{
-          position: absolute;
-          top: 20vh;
+          position: relative;
+          margin: 20vh auto;
+          max-width: 1366px;
           height: 60vh
       }

@@ -29,11 +29,18 @@ Examples:
 * [greggman](https://github.com/greggman) for TWGL.js
 * [wizgrav](https://github.com/wizgrav) for Clubber
 
+### Refs
+
+* [MIDI Note table](http://subsynth.sourceforge.net/midinote2freq.html)
+* [Audio Spectrum](http://www.teachmeaudio.com/mixing/techniques/audio-spectrum)
+
 ### Todos
 
-* tweak sin wave parameters
-* add fullscreen cta
-* add fps counter
+* tweak sin wave parameter
+
+### Changelog
+
+* 29/09/2017 - tweak thresholdFactor
 
 ### License
 

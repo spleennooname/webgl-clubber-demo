@@ -88,7 +88,7 @@ requirejs([
         },
 
 
-        ID_DEFAULT ="5621559",
+        ID_DEFAULT ="38842752",
 
         ready = function() {
 
@@ -102,7 +102,8 @@ requirejs([
             audio.crossOrigin = "anonymous";
 
             clubber = new Clubber({
-                size: 2048 // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
+                size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
+                thresholdFactor: .25
             });
             clubber.listen(audio);            
 
@@ -111,33 +112,33 @@ requirejs([
 
             stats = new rStats(rstats_obj);
 
-            demo = new TWGLDemo(document.getElementById("canvas"), vertSrc, fragSrc);
+            demo = new TWGLDemo( document.getElementById("canvas"), vertSrc, fragSrc);
 
             bands = {
 
                 low: clubber.band({
-                    from: 0, // minimum midi note to take into account
-                    to: 42, // maximum midi note, up to 160.
+                    from: 1, // minimum midi note to take into account
+                    to: 59, // maximum midi note, up to 160.
                     smooth: [0.1, 0.1, 0.1, 0.1] // Exponential smoothing factors for each of the four returned values
                 }),
 
                 mid: clubber.band({
-                    from: 43,
-                    to: 86,
+                    from: 58,
+                    to: 95,
                     smooth: [0.1, 0.1, 0.1, 0.1]
                 }),
 
                 high: clubber.band({
-                    from: 86,
-                    to: 127,
+                    from: 96,
+                    to: 128,
                     smooth: [0.1, 0.1, 0.1, 0.1]
                 })
             };
 
             id_soundcloud = getParameterByName("id") || ID_DEFAULT;
-            //if (id_soundcloud) document.getElementById("tid").value = id_soundcloud;
 
             clubber.update();
+
             play();
 
             then = Date.now();
@@ -180,7 +181,6 @@ requirejs([
             if (delta > fr) {
 
                 then = now - (delta % fr);
-
 
                 time += 0.015;
 

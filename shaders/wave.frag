@@ -19,7 +19,7 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define resolution iResolution.xy
 
-#define N_WAVES 3
+#define N_WAVES 4
 #define GREY 220./255.
 
 //noise
@@ -71,7 +71,7 @@ float wave(float x, int i, vec4 low, vec4 mid, vec4 high){
     //y *= ( mix(.1, .25, note2) + .35*cos(x) );
 
     //2016 09 27
-    float y = ( mix(0., 2.0, note3+note2) - .5*i_f )*sin( x*2. + .75*time - i_f * mix(-.75, 4., note0)) * (  mix(-2., 2.0, note0 + note3)*cos(x) );
+    float y = ( mix(0., +.45, note3) - .5*i_f )*sin( x*2.25 + .75*time - i_f * mix(-.75, +.75, note0) ) * (  mix(-.75, +.75, note0 + note3 )*cos(x) );
 
     return y;
 }
