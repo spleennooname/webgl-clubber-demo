@@ -20,7 +20,7 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define resolution iResolution.xy
 
-#define N_WAVES 3
+#define N_WAVES 5
 #define GREY 220./255.
 
 //noise
