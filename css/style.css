@@ -1,8 +1,3 @@
-       
-       @import url("https://cdnjs.cloudflare.com/ajax/libs/normalize/4.2.0/normalize.min.css");
-       @import url("https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css");
-       @import url("https://fonts.googleapis.com/css?family=EB+Garamond");
-
        * {
            margin: 0;
            padding: 0;
@@ -17,23 +12,22 @@
            position: fixed;
            font-size: 1.5rem;
        }
-
-        .social {
+       
+       .social {
            position: fixed;
-           bottom:0;
+           bottom: 0;
            right: 0;
            color: black;
            padding: .5rem;
            font-size: 1.5rem;
        }
-
-       .social a{
-        display: inline-block;
-        padding: 0 .5rem;
-        color: black;
-        font-size: 2rem;
+       
+       .social a {
+           display: inline-block;
+           padding: 0 .5rem;
+           color: black;
+           font-size: 2rem;
        }
-
        
        #header span {
            vertical-align: middle;
@@ -49,10 +43,10 @@
            font-size: 2.5rem;
            line-height: 2.5rem;
        }
-
-        #header .tid{
-          display: none
-        }
+       
+       #header .tid {
+           display: none
+       }
        
        audio {
            position: fixed;
@@ -66,7 +60,7 @@
        }
        
        #header a {
-          color: black
+           color: black
        }
        
        #header img {
@@ -90,29 +84,39 @@
            padding: 2rem;
            border: 1px solid #ddd;
        }
-
+       
        body .rs-base {
-            position: fixed;
-            z-index: 10000;
-            top:0;
-            padding: 5px;
-            background-color: #000;
-            font-size: 13px;
-            line-height: 13px;
-            width: 170px;
-            font-family: 'EB Garamond', serif;
-            left: 0;
-            bottom: auto;
-            overflow: hidden;
-      }
+           position: fixed;
+           z-index: 10000;
+           top: 0;
+           padding: 5px;
+           background-color: #000;
+           font-size: 13px;
+           line-height: 13px;
+           width: 170px;
+           font-family: 'EB Garamond', serif;
+           left: 0;
+           bottom: auto;
+           overflow: hidden;
+       }
+       
+       body {
+           background: black;
+           text-align: center;
+       }
+       
+       #canvas {
+           position: relative;
+           margin: 20vh auto;
+           max-width: 1366px;
+           height: 60vh
+       }
 
-      body{
-        background: black;
-        text-align: center;
-      }
-      canvas{
-          position: relative;
-          margin: 20vh auto;
-          max-width: 1366px;
-          height: 60vh
-      }
+       .rs-base canvas.rs-canvas {
+          margin: 0 auto;
+       }
+
+
+      .rs-base div.rs-counter-base {
+          color: white
+        }

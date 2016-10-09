@@ -13,14 +13,15 @@ http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
 
 Examples:
 
+* [https://soundcloud.com/2pac-radio/2pac-str8-ballin-alternate](http://spleennooname.github.io/webg-clubber-demo/index.html?id=75626625)
 * [https://soundcloud.com/felipe-forbeck/jhonny-cash-the-man-comes](http://spleennooname.github.io/webg-clubber-demo/index.html?id=38842752)
 * [https://soundcloud.com/the-chemical-brothers/chemical-brothers-01-hey-boy-hey-girl-live-sydney](http://spleennooname.github.io/webg-clubber-demo/index.html?id=5621559)
 
 
 ### Techs
 
-  * Custom GLSL fragment shader ([wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) )
-  * AMD support with RequireJS
+  * Custom GLSL frag.shader ([wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) )
+  * AMD/Webpack support
   * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
   * [Clubber](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
 
@@ -40,7 +41,11 @@ Examples:
 
 ### Changelog
 
-* 29/09/2017 - tweak thresholdFactor
+* 29/09/2017 
+	* tweak thresholdFactor
+* 09/10/2017
+	* bundle-ize with Webpack
+	* +1 band added 
 
 ### License
 
