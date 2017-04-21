@@ -8,7 +8,7 @@ module.exports = {
 
     output: {
     	path: "js",
-        filename: "bundle.js"
+      filename: "bundle-2.js"
     },
 
     devtool: 'source-map',
@@ -25,15 +25,15 @@ module.exports = {
     },
 
     resolve: {
-        
+
         modulesDirectories: [ "js","node_modules"],
 
         alias: {
-        	
+
         	"domready": "lib/require/domReady",
-        	
+
 	        "raf": "lib/raf",
-	        
+
 	        "clubber": "lib/Clubber",
 
 	        "twgldemo": "lib/TWGLDemo",
@@ -44,13 +44,12 @@ module.exports = {
         }
     },
 
-    watch: true,
+    watch: false,
 
     plugins: [
         new UglifyJsPlugin({
-            compress: true, 
-            debug: true 
+            compress: true,
+            debug: true
         })
     ]
 }
-

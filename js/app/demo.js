@@ -44,7 +44,7 @@ define([
 
         ready = function() {
 
-            if( !Detector.webgl){                
+            if( !Detector.webgl){
                 var msg = Detector.getWebGLErrorMessage();
                 document.body.appendChild(msg);
                 return;
@@ -57,7 +57,7 @@ define([
                 size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
                 thresholdFactor: .25
             });
-            clubber.listen(audio);            
+            clubber.listen(audio);
 
             var fragSrc = text;
             var vertSrc = null;
@@ -101,7 +101,7 @@ define([
 
         play = function(src) {
 
-            var url = 'http://api.soundcloud.com/tracks/' + parseInt(id_soundcloud) + '/stream?client_id=56c4f3443da0d6ce6dcb60ba341c4e8d';
+            var url = 'https://api.soundcloud.com/tracks/' + parseInt(id_soundcloud) + '/stream?client_id=56c4f3443da0d6ce6dcb60ba341c4e8d';
             audio.src = url;
             audio.play();
         },
@@ -146,7 +146,7 @@ define([
                 }
 
                 demo.update(time, data);
-              
+
             }
 
             stats('frame').end();
