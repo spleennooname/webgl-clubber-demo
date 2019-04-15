@@ -1,9 +1,7 @@
 // by Andrea Bovo, spleennooname / 2016
 // Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
-#ifdef GL_ES
-precision mediump float;
-#endif
+precision mediump highp;
 
 varying vec2 vUv;
 
@@ -15,10 +13,8 @@ uniform vec4 iMusicLow;
 uniform vec4 iMusicMid;
 uniform vec4 iMusicHigh;
 
-//
-
 #define time iGlobalTime
-#define resolution iResolution.xy
+#define R iResolution.xy
 
 #define N_WAVES 5
 #define GREY 220./255.
@@ -69,7 +65,7 @@ float wave(float x, int i, vec4 sub, vec4 low, vec4 mid, vec4 high){
 
 void main(void) {
 
-    vec2 uv = (gl_FragCoord.xy / resolution - vec2(0.5)) * vec2(resolution.x / resolution.y, 1.0);
+    vec2 uv = (gl_FragCoord.xy / R.xy - vec2(0.5)) * vec2(R.x / R.y, 1.0);
 
     uv.y *= 1.5;
     uv.x *= 1.75;
@@ -79,7 +75,6 @@ void main(void) {
     for(int i = 0; i<N_WAVES; ++i){
 
         float i_f = float(i)*0.5 + 1.;
-
 
         float y = d2y2( distance( 2.*uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) ), i_f );
         col += y;

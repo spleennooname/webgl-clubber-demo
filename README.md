@@ -1,36 +1,24 @@
-A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhythm & redirect output through GLSL shader. 
+# Webgl Clubber Demo
 
-![screenshot](https://spleennooname.github.io/webg-clubber-demo/img/social.jpg)
+> A WebGL Audio Visualizer detecting beat&rhythm & redirect output through GLSL shader.
+
+![screenshot](https://spleennooname.github.io/webgl-clubber-demo/screenshot.png)
 
 ### Demo
 
-Try a different sound-cloud id with URL parameter:
-
-```
-http://spleennooname.github.io/webgl-clubber-demo/index.html?id=<soundcloud-id>
-```
-(go to soundcloud track page, click *share* then select *embed* and grab the markup-code)
-
-Examples:
-
-* [https://soundcloud.com/2pac-radio/2pac-str8-ballin-alternate](http://spleennooname.github.io/webg-clubber-demo/index.html?id=75626625)
-* [https://soundcloud.com/felipe-forbeck/jhonny-cash-the-man-comes](http://spleennooname.github.io/webg-clubber-demo/index.html?id=38842752)
-* [https://soundcloud.com/the-chemical-brothers/chemical-brothers-01-hey-boy-hey-girl-live-sydney](http://spleennooname.github.io/webg-clubber-demo/index.html?id=5621559)
-
+[https://waves-clubber.surge.sh](https://waves-clubber.surge.sh])
 
 ### Techs
 
-  * Custom GLSL frag.shader ([wave.frag](https://github.com/spleennooname/webg-clubber-demo/blob/master/shaders/wave.frag) )
-  * AMD/Webpack support
   * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
   * [Clubber](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
 
-### Credits
+### Creditz
 
 * [greggman](https://github.com/greggman) for TWGL.js
 * [wizgrav](https://github.com/wizgrav) for Clubber
 
-### Refs
+### refs
 
 * [MIDI Note table](http://subsynth.sourceforge.net/midinote2freq.html)
 * [Audio Spectrum](http://www.teachmeaudio.com/mixing/techniques/audio-spectrum)
@@ -40,12 +28,13 @@ Examples:
 * tweak sin wave parameter
 
 ### Changelog
-
-* 29/09/2017 
+* 12/04/2019
+	* massive rebuild
+* 29/09/2017
 	* tweak thresholdFactor
 * 09/10/2017
 	* bundle-ize with Webpack
-	* +1 band added 
+	* +1 band added
 
 ### License
 

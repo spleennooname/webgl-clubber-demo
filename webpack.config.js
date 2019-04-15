@@ -1,55 +1,82 @@
-var UglifyJsPlugin = require('uglify-js-plugin');
+'use strict';
 
-module.exports = {
+const webpack = require('webpack');
+const path = require('path');
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
-    entry: {
-    	"demo": ["app/entry.js"]
-    },
-
-    output: {
-    	path: "js",
-      filename: "bundle-2.js"
-    },
-
-    devtool: 'source-map',
-
-    module: {
-        loaders: [
-        	{ test: /\.(glsl|vs|fs|frag)$/, loader: 'shader' },
-            { test: /twgl\.js$/, loader: 'exports?twgl!imports?polyfills/raf,polyfills/performance' },
-            { test: /twgldemo\.js$/, loader: 'exports?TWGLDemo!imports?twgl' },
-            { test: /clubber\.js$/, loader: 'exports?Clubber' },
-            { test: /detector\.js$/, loader: 'exports?Detector' },
-            { test: /rstats\.js$/, loader: 'exports?rStats' }
-        ]
-    },
-
-    resolve: {
-
-        modulesDirectories: [ "js","node_modules"],
-
-        alias: {
-
-        	"domready": "lib/require/domReady",
-
-	        "raf": "lib/raf",
-
-	        "clubber": "lib/Clubber",
-
-	        "twgldemo": "lib/TWGLDemo",
-	        "twgl": "lib/twgl.min",
-
-	        "detector" : "lib/Detector",
-	        "rstats" : "lib/rStats"
-        }
-    },
-
-    watch: false,
-
-    plugins: [
-        new UglifyJsPlugin({
-            compress: true,
-            debug: true
-        })
-    ]
+function resolve(dir) {
+  return path.join(__dirname, '.', dir);
 }
+
+function isProduction() {
+  return process.env.NODE_ENV === 'production';
+}
+
+const config = {
+
+  mode: process.env.NODE_ENV,
+
+  entry: {
+    'app': './src/app.js'
+  },
+
+  output: {
+    path: resolve('./dist'),
+    //publicPath: '/dist/',
+    filename: '[name].build.js',
+  },
+
+  devServer: {
+    hot: true,
+    https: true,
+    watchOptions: { poll: true },
+    contentBase: resolve('dist'),
+  },
+
+  // https://webpack.js.org/configuration/optimization
+  optimization: {
+    minimize: isProduction(),
+    noEmitOnErrors: true,
+    moduleIds: 'total-size',
+    /*  minimizer: [
+       new OptimizeCSSAssetsPlugin({})
+     ] */
+  },
+
+  module: {
+    rules: [
+      {
+        test: /\.scss$/,
+        use: [
+          { loader: MiniCssExtractPlugin.loader, options: {} },
+          { loader: 'css-loader', options: {} },
+          { loader: 'sass-loader', options: {} },
+        ],
+      },
+      {
+        test: /\.(glsl|vs|fs)$/,
+        loader: 'shader-loader',
+        options: {
+          glsl: {
+            chunkPath: path.resolve(__dirname, './glsl/chunks'),
+          }
+        }
+      },
+      {
+        test: /\.js$/,
+        use: { loader: 'babel-loader', options: { cacheDirectory: true } },
+        exclude: /node_modules/,
+      },
+    ],
+  },
+
+  plugins: [
+    new webpack.HotModuleReplacementPlugin(),
+
+    new MiniCssExtractPlugin({
+      filename: 'styles.css',
+    })
+  ],
+};
+
+module.exports = config;
