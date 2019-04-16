@@ -46,9 +46,70 @@ body {
   position: fixed;
   bottom:0;
   left: 50%;
+  width: 50vw;
   z-index: 1;
-  transform: translate3d(-50%, 0, 0)
+  transform: translate3d(-50%, 0, 0);
+
+  &::-webkit-media-controls-panel{
+
+  }
+
+  &::-webkit-media-controls-mute-button{
+
+  }
+
+  &::-webkit-media-controls-play-button{
+
+  }
+
+  &::-webkit-media-controls-timeline-container{
+
+  }
+
+  &::-webkit-media-controls-current-time-display{
+
+  }
+
+  &::-webkit-media-controls-time-remaining-display{
+
+  }
+
+  &::-webkit-media-controls-timeline{
+
+  }
+
+  &::-webkit-media-controls-volume-slider-container{
+
+  }
+
+  &::-webkit-media-controls-volume-slider{
+
+  }
+
+  &::-webkit-media-controls-seek-back-button{
+
+  }
+
+  &::-webkit-media-controls-seek-forward-button{
+
+  }
+
+  &::-webkit-media-controls-fullscreen-button{
+
+  }
+
+  &::-webkit-media-controls-rewind-button{
+
+  }
+
+  &::-webkit-media-controls-return-to-realtime-button{
+
+  }
+  &::-webkit-media-controls-toggle-closed-captions-button{
+
+  }
 }
+
 body>div:not(.demo){
   position: absolute;
   bottom: 0;

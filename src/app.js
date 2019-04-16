@@ -36,7 +36,7 @@ let now = 0,
 
 let SIZE = 512;
 
-const tracks = ['577151343', '396848079'];
+const tracks = ['577151343', '396848079', '92039697'];
 
 
 let cover,
@@ -48,8 +48,7 @@ let cover,
   iMusicMid = [0.0, 0.0, 0.0, 0.0],
   iMusicHigh = [0.0, 0.0, 0.0, 0.0];
 
-let CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d',
-  AUDIO_URL = 'https://api.soundcloud.com/tracks/396848079/stream?client_id=' + CLIENT_ID;
+const CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d';
 
 // utils
 
@@ -96,14 +95,16 @@ function getBestGPUSettings() {
   }
 }
 
-function setMousePos(e) {
+function setPos(e) {
   mouse[0] = e.clientX / gl.canvas.clientWidth;
   mouse[1] = 1 - e.clientY / gl.canvas.clientHeight;
+  console.log('setPos', e, mouse, gl.canvas.clientWidth, gl.canvas.clientHeight);
 }
 
-function handleTouch(e) {
+function setTouch(e) {
   e.preventDefault();
-  setMousePos(e.touches[0]);
+  setPos(e.touches[0]);
+  console.log('setTouch', mouse);
 }
 
 function demo() {
@@ -124,7 +125,9 @@ function demo() {
 
   canvas.addEventListener('webglcontextlost', lost, false);
   canvas.addEventListener('webglcontextrestored', restore, false);
-  canvas.addEventListener('mousemove', setMousePos);
+
+  // device pointers
+  canvas.addEventListener('mousemove', setPos, false);
   canvas.addEventListener('mouseleave', () => {
     mouse = [0.5, 0.5];
   });
@@ -132,8 +135,8 @@ function demo() {
     console.log(e);
   });
   canvas.addEventListener('contextmenu', e => e.preventDefault());
-  canvas.addEventListener('touchstart', handleTouch, { passive: false });
-  canvas.addEventListener('touchmove', handleTouch, { passive: false });
+  canvas.addEventListener('touchstart', setTouch, { passive: false });
+  canvas.addEventListener('touchmove', setTouch, { passive: false });
 
   // audio el
   audio = document.getElementById('audio');
@@ -142,8 +145,10 @@ function demo() {
   // cover click
   cover = document.querySelector('.cover');
   cover.addEventListener('click', event => {
-    play();
+    start();
   });
+
+  initClubber();
 
   initGL();
 
@@ -245,8 +250,8 @@ function initGL() {
       SIZE +
       ')';
   }
-  then = window.performance.now();
 
+  then = window.performance.now();
   run();
 }
 
@@ -285,30 +290,26 @@ function render(time) {
   resize();
 
   if (clubber) {
+
     clubber.update();
 
     bands.low(iMusicLow);
     bands.sub(iMusicSub);
     bands.high(iMusicHigh);
     bands.mid(iMusicMid);
+
+    twgl.setUniforms(programInfo, {
+      iMusicSub: iMusicSub,
+      iMusicLow: iMusicLow,
+      iMusicMid: iMusicMid,
+      iMusicHigh: iMusicHigh,
+      iGlobalTime: time,
+      iResolution: [displayWidth, displayHeight],
+    });
+
+    twgl.bindFramebufferInfo(gl, null);
+    twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
   }
-
-  twgl.setUniforms(programInfo, {
-    iMusicSub: iMusicSub,
-    iMusicLow: iMusicLow,
-    iMusicMid: iMusicMid,
-    iMusicHigh: iMusicHigh,
-    iGlobalTime: time,
-    iResolution: [displayWidth, displayHeight],
-  });
-  twgl.bindFramebufferInfo(gl, null);
-  twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
-}
-
-function start() {
-  stop();
-  then = window.performance.now();
-  run();
 }
 
 function stop() {
@@ -330,16 +331,18 @@ function restore(e) {
   initGL();
 }
 
-function play() {
-  cover.removeEventListener('click', play);
-  TweenMax.to(cover, 0.35, { autoAlpha: 0 });
-  audio.src = 'https://api.soundcloud.com/tracks/'+ tracks[0] + '/stream?client_id=' + CLIENT_ID;
-  const p = audio.play();
-  p.then(() => {
-    initClubber();
+function bindTrax(index = 0) {
+  audio.src = 'https://api.soundcloud.com/tracks/' + tracks[index] + '/stream?client_id=' + CLIENT_ID;
+  audio.volume = 0.5;
+  audio.play().then(() => {
     clubber.listen(audio);
-    clubber.update();
   });
+}
+
+function start() {
+  cover.removeEventListener('click', start);
+  TweenMax.to(cover, 0.35, { autoAlpha: 0 });
+  bindTrax(2);
 }
 
 demo();
