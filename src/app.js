@@ -8,8 +8,8 @@ import vs from './glsl/vert.glsl';
 import fs from './glsl/frag.glsl';
 import ps from './glsl/post.glsl';
 
-import Clubber from 'clubber';
-import { getGPUTier } from 'detect-gpu';
+//import Clubber from 'clubber';
+import GPUTools from './GPUTools';
 import { TweenMax } from 'gsap';
 import * as twgl from 'twgl.js';
 
@@ -20,13 +20,12 @@ let canvas,
   GPUTier,
   positionBuffer,
   rafID = -1,
+  gpuTools,
   pixelRatio = 0,
   displayWidth,
   displayHeight,
   programInfo,
   stats;
-
-let mouse = [];
 
 let now = 0,
   t = 0,
@@ -34,10 +33,9 @@ let now = 0,
   fps = 60,
   interval = 1000 / fps;
 
-let SIZE = 512;
+let bufferSize = 512;
 
 const tracks = ['577151343', '396848079', '92039697'];
-
 
 let cover,
   audio,
@@ -49,63 +47,6 @@ let cover,
   iMusicHigh = [0.0, 0.0, 0.0, 0.0];
 
 const CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d';
-
-// utils
-
-function getGPU() {
-  const a = GPUTier.tier.split('_');
-  return {
-    levelTier: parseInt(a[3], 10),
-    isMobile: a.findIndex(k => k === 'MOBILE') !== -1,
-    isDesk: a.findIndex(k => k === 'DESKTOP') !== -1,
-  };
-}
-
-function getBestGPUSettings() {
-  let fps = 33;
-  let size = 320;
-  let ratio = 1;
-  let gpu = getGPU();
-  if (gpu.isMobile) {
-    if ( gpu.levelTier <= 1) {
-      size = 320;
-      fps = 33;
-    }
-    else
-    if (gpu.levelTier <= 2) {
-      size = 400;
-      fps = 33;
-    }
-    else
-    if (gpu.levelTier >= 3) {
-      size = 512;
-      fps = 60;
-      ratio = window.devicePixelRatio;
-    }
-  }
-  else
-  if (gpu.isDesk) {
-    fps = 60;
-    size = 512;
-  }
-  return {
-    fps: fps,
-    size: size,
-    ratio: ratio
-  }
-}
-
-function setPos(e) {
-  mouse[0] = e.clientX / gl.canvas.clientWidth;
-  mouse[1] = 1 - e.clientY / gl.canvas.clientHeight;
-  console.log('setPos', e, mouse, gl.canvas.clientWidth, gl.canvas.clientHeight);
-}
-
-function setTouch(e) {
-  e.preventDefault();
-  setPos(e.touches[0]);
-  console.log('setTouch', mouse);
-}
 
 function demo() {
   // canvas
@@ -127,7 +68,7 @@ function demo() {
   canvas.addEventListener('webglcontextrestored', restore, false);
 
   // device pointers
-  canvas.addEventListener('mousemove', setPos, false);
+  /* canvas.addEventListener('mousemove', setPos, false);
   canvas.addEventListener('mouseleave', () => {
     mouse = [0.5, 0.5];
   });
@@ -136,7 +77,7 @@ function demo() {
   });
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('touchstart', setTouch, { passive: false });
-  canvas.addEventListener('touchmove', setTouch, { passive: false });
+  canvas.addEventListener('touchmove', setTouch, { passive: false }); */
 
   // audio el
   audio = document.getElementById('audio');
@@ -148,8 +89,6 @@ function demo() {
     start();
   });
 
-  initClubber();
-
   initGL();
 
   //gl.getExtension('WEBGL_lose_context').restoreContext();
@@ -157,48 +96,57 @@ function demo() {
 }
 
 function initClubber() {
-
   clubber = new Clubber({
     size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
   });
 
   bands = {
     sub: clubber.band({
-      template: '3270',
-      from: 5,
+      from: 1,
       to: 32,
       smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+      adapt: [1, 1, 1, 1],
+      low: 64,
+      high: 128,
     }),
 
     low: clubber.band({
       from: 32,
       to: 48,
       smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+      adapt: [1, 1, 1, 1],
+      low: 64,
+      high: 128,
     }),
 
     mid: clubber.band({
       from: 48,
       to: 64,
       smooth: [0.1, 0.1, 0.1, 0.1],
+      adapt: [1, 1, 1, 1],
+      low: 64,
+      high: 128,
     }),
 
     high: clubber.band({
       from: 64,
-      to: 160,
+      to: 96,
       smooth: [0.1, 0.1, 0.1, 0.1],
+      adapt: [1, 1, 1, 1],
+      low: 64,
+      high: 128,
     }),
   };
+
+  clubber.context.resume();
+
 }
 
 function initGL() {
+  gpuTools = new GPUTools();
 
-  GPUTier = getGPUTier({
-    mobileBenchmarkPercentages: [15, 35, 30, 20], // (Default) [TIER_0, TIER_1, TIER_2, TIER_3]
-    desktopBenchmarkPercentages: [15, 35, 30, 20], // (Default) [TIER_0, TIER_1, TIER_2, TIER_3]
-  });
-
-  const gpu = getBestGPUSettings();
-  SIZE = gpu.size;
+  const gpu = gpuTools.getBestGPUSettings();
+  bufferSize = gpu.bufferSize;
   fps = gpu.fps;
   pixelRatio = gpu.ratio;
 
@@ -247,12 +195,9 @@ function initGL() {
       ')' +
       '<br/>' +
       '(buffer size: ' +
-      SIZE +
+      bufferSize +
       ')';
   }
-
-  then = window.performance.now();
-  run();
 }
 
 function run() {
@@ -274,8 +219,8 @@ function resize() {
   // device pixels.
   //const aspectRatio = window.innerWidth / window.innerHeight;
   //console.log( aspectRatio)
-  displayWidth = SIZE; //Math.floor(canvas.clientWidth * pixelRatio);
-  displayHeight = SIZE; //Math.floor(canvas.clientHeight * pixelRatio);
+  displayWidth = bufferSize; //Math.floor(canvas.clientWidth * pixelRatio);
+  displayHeight = bufferSize; //Math.floor(canvas.clientHeight * pixelRatio);
   // Check if the canvas is not the same size.
   if (canvas.width !== displayWidth || canvas.height !== displayHeight) {
     // Make the canvas the same size
@@ -286,30 +231,31 @@ function resize() {
 }
 
 function render(time) {
+  if (audio.readyState !== 4) {
+    return;
+  }
 
   resize();
 
-  if (clubber) {
+  clubber.update();
+  //console.log(audio.readyState, clubber.notes);
 
-    clubber.update();
+  bands.low(iMusicLow);
+  bands.sub(iMusicSub);
+  bands.high(iMusicHigh);
+  bands.mid(iMusicMid);
 
-    bands.low(iMusicLow);
-    bands.sub(iMusicSub);
-    bands.high(iMusicHigh);
-    bands.mid(iMusicMid);
+  twgl.setUniforms(programInfo, {
+    iMusicSub: iMusicSub,
+    iMusicLow: iMusicLow,
+    iMusicMid: iMusicMid,
+    iMusicHigh: iMusicHigh,
+    iGlobalTime: clubber.time / 1000,
+    iResolution: [displayWidth, displayHeight],
+  });
 
-    twgl.setUniforms(programInfo, {
-      iMusicSub: iMusicSub,
-      iMusicLow: iMusicLow,
-      iMusicMid: iMusicMid,
-      iMusicHigh: iMusicHigh,
-      iGlobalTime: time,
-      iResolution: [displayWidth, displayHeight],
-    });
-
-    twgl.bindFramebufferInfo(gl, null);
-    twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
-  }
+  twgl.bindFramebufferInfo(gl, null);
+  twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
 }
 
 function stop() {
@@ -333,10 +279,21 @@ function restore(e) {
 
 function bindTrax(index = 0) {
   audio.src = 'https://api.soundcloud.com/tracks/' + tracks[index] + '/stream?client_id=' + CLIENT_ID;
-  audio.volume = 0.5;
-  audio.play().then(() => {
-    clubber.listen(audio);
-  });
+  audio
+    .play()
+    .then(() => {
+      console.log('play&run', audio.src);
+      then = window.performance.now();
+      initClubber();
+      console.log(clubber.context.state);
+      clubber.listen(audio);
+      clubber.context.resume();
+      console.log(clubber.context.state);
+      run();
+    })
+    .catch(error => {
+      console.warn(error);
+    });
 }
 
 function start() {

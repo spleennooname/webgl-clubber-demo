@@ -47,7 +47,6 @@ float blur(float dist, float width, float blur, float intens) {
 }
 
 float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
-
   // 0 the note where the highest energy was seen,
   // 1 the average note for the whole band,
   // 2 the octave (bass vs treble) and
