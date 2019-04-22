@@ -8,7 +8,7 @@ import vs from './glsl/vert.glsl';
 import fs from './glsl/frag.glsl';
 import ps from './glsl/post.glsl';
 
-import Clubber from 'clubber';
+// import Clubber from 'clubber';
 // import { AudioContext } from 'standardized-audio-context';
 import GPUTools from './GPUTools';
 /* import IosUnlock from './iosUnlock'; */
@@ -163,7 +163,7 @@ function resize() {
 }
 
 function render(time) {
-  /*  if (audio.readyState !== 4) {
+  /*   if (audio.readyState !== 4) {
     return;
   } */
 
@@ -171,26 +171,23 @@ function render(time) {
 
   analyser.getByteFrequencyData(heightArray);
 
-  if (clubber) {
-    // console.log(NaN, clubber.time / 1000);
-
+   if (clubber) {
     clubber.update(null, heightArray, false);
 
     bands.low(iMusicLow);
     bands.sub(iMusicSub);
     bands.high(iMusicHigh);
     bands.mid(iMusicMid);
-
-    twgl.setUniforms(programInfo, {
-      iMusicSub: iMusicSub,
-      iMusicLow: iMusicLow,
-      iMusicMid: iMusicMid,
-      iMusicHigh: iMusicHigh,
-      iGlobalTime: time,
-      iResolution: [displayWidth, displayHeight],
-    });
   }
 
+  twgl.setUniforms(programInfo, {
+    iMusicSub: iMusicSub,
+    iMusicLow: iMusicLow,
+    iMusicMid: iMusicMid,
+    iMusicHigh: iMusicHigh,
+    iGlobalTime: time,
+    iResolution: [displayWidth, displayHeight],
+  });
   twgl.bindFramebufferInfo(gl, null);
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
 
@@ -229,9 +226,9 @@ function render(time) {
       ':' +
       audioContext.state +
       '<br/>' +
-      time
-      //'+<br/>' +
-      //heightArray;
+      time;
+    //'+<br/>' +
+    //heightArray;
     //+ clubber.time;
   }
 }
@@ -267,29 +264,28 @@ function start() {
 
   numPoints = analyser.frequencyBinCount;
 
-  analyser.fftSize = 4096;
+  analyser.fftSize = 2048;
   heightArray = new Uint8Array(numPoints);
   //console.log(numPoints, heightArray);
 
   audio.addEventListener('canplay', event => {
-    // document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
+    document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
     try {
-
       source = audioContext.createMediaElementSource(audio);
       source.connect(analyser);
 
       analyser.connect(audioContext.destination);
 
-      clubber = new Clubber({
+     clubber = new Clubber({
         context: audioContext,
         analyser: analyser,
       });
 
-      bands = {
+       bands = {
         sub: clubber.band({
           from: 1,
           to: 32,
-          smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+          smooth: [0.1, 0.1, 0.1, 0.1],
 
           low: 64,
           high: 128,
@@ -298,7 +294,7 @@ function start() {
         low: clubber.band({
           from: 32,
           to: 48,
-          smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+          smooth: [0.1, 0.1, 0.1, 0.1],
 
           low: 64,
           high: 128,
@@ -328,11 +324,11 @@ function start() {
     console.log(e.toString());
   });
 
-  audio.src = 'https://api.soundcloud.com/tracks/' + tracks[0] + '/stream?client_id=' + CLIENT_ID;
-  // audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
+  //audio.src = 'https://api.soundcloud.com/tracks/' + tracks[2] + '/stream?client_id=' + CLIENT_ID;
+  audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
   audio.play();
 
-  TweenMax.to( audio, 8, { volume: 0.15})
+  TweenMax.to(audio, 8, { volume: 0.15 });
   then = window.performance.now();
   run();
 
