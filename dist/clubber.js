@@ -135,21 +135,22 @@
 
       Clubber.prototype.listen = function(obj) {
         if (this.source) {
-          this.source.disconnect(this.analyser);
+          // this.source.disconnect(this.analyser);
         }
         if (obj instanceof AudioNode) {
           this.el = null;
-          this.source = obj;;
+          this.source = obj;
         } else {
           this.el = obj;
           if (obj._mediaElementSource) {
             this.source = obj._mediaElementSource;
           } else {
-            this.source = obj._mediaElementSource = this.context.createMediaElementSource(obj);
+            this.source = this.context.createMediaElementSource(obj);
+            // document.querySelector('.log').innerHTML += 'clubber: '+this.notes+'<br/>';
           }
-          console.log('listen', this.source);
         }
         this.source.connect(this.analyser);
+        document.querySelector('.log').innerHTML += 'clubber:' + this.context.state + '<br/>';
       };
 
       Clubber.prototype.band = function(config) {

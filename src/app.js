@@ -8,24 +8,35 @@ import vs from './glsl/vert.glsl';
 import fs from './glsl/frag.glsl';
 import ps from './glsl/post.glsl';
 
-//import Clubber from 'clubber';
+import Clubber from 'clubber';
+// import { AudioContext } from 'standardized-audio-context';
 import GPUTools from './GPUTools';
+/* import IosUnlock from './iosUnlock'; */
+
+//import webAudioTouchUnlock from './webAudioTouchUnlock';
+
 import { TweenMax } from 'gsap';
 import * as twgl from 'twgl.js';
 
-const IS_LOG = false;
+const IS_LOG = true;
 
 let canvas,
   gl,
-  GPUTier,
   positionBuffer,
+  iosUnlock,
   rafID = -1,
+  source,
   gpuTools,
   pixelRatio = 0,
   displayWidth,
   displayHeight,
+  audioContext,
+  analyser,
   programInfo,
-  stats;
+  stats,
+  numPoints,
+  heightArray,
+  state;
 
 let now = 0,
   t = 0,
@@ -64,6 +75,12 @@ function demo() {
     return;
   }
 
+  // audio el
+  audio = document.querySelector('#audio');
+  audio.crossOrigin = 'anonymous';
+  audio.loop = true;
+  audio.volume = 0;
+
   canvas.addEventListener('webglcontextlost', lost, false);
   canvas.addEventListener('webglcontextrestored', restore, false);
 
@@ -78,11 +95,6 @@ function demo() {
   canvas.addEventListener('contextmenu', e => e.preventDefault());
   canvas.addEventListener('touchstart', setTouch, { passive: false });
   canvas.addEventListener('touchmove', setTouch, { passive: false }); */
-
-  // audio el
-  audio = document.getElementById('audio');
-  audio.crossOrigin = 'anonymous';
-
   // cover click
   cover = document.querySelector('.cover');
   cover.addEventListener('click', event => {
@@ -90,56 +102,8 @@ function demo() {
   });
 
   initGL();
-
   //gl.getExtension('WEBGL_lose_context').restoreContext();
   //gl.getExtension('WEBGL_lose_context').loseContext();
-}
-
-function initClubber() {
-  clubber = new Clubber({
-    size: 2048, // Samples for the fourier transform. The produced frequency bins will be 1/2 that.
-  });
-
-  bands = {
-    sub: clubber.band({
-      from: 1,
-      to: 32,
-      smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
-      adapt: [1, 1, 1, 1],
-      low: 64,
-      high: 128,
-    }),
-
-    low: clubber.band({
-      from: 32,
-      to: 48,
-      smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
-      adapt: [1, 1, 1, 1],
-      low: 64,
-      high: 128,
-    }),
-
-    mid: clubber.band({
-      from: 48,
-      to: 64,
-      smooth: [0.1, 0.1, 0.1, 0.1],
-      adapt: [1, 1, 1, 1],
-      low: 64,
-      high: 128,
-    }),
-
-    high: clubber.band({
-      from: 64,
-      to: 96,
-      smooth: [0.1, 0.1, 0.1, 0.1],
-      adapt: [1, 1, 1, 1],
-      low: 64,
-      high: 128,
-    }),
-  };
-
-  clubber.context.resume();
-
 }
 
 function initGL() {
@@ -147,7 +111,7 @@ function initGL() {
 
   const gpu = gpuTools.getBestGPUSettings();
   bufferSize = gpu.bufferSize;
-  fps = gpu.fps;
+  fps = 60; //gpu.fps; try max fps
   pixelRatio = gpu.ratio;
 
   interval = 1000 / fps;
@@ -156,7 +120,7 @@ function initGL() {
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild(stats.domElement);
 
-  gl = twgl.getContext(canvas, { depth: false, antialiasing: false });
+  gl = twgl.getContext(canvas, { depth: false, antialiasing: true });
 
   programInfo = twgl.createProgramInfo(gl, [vs, fs]);
 
@@ -166,38 +130,6 @@ function initGL() {
 
   gl.useProgram(programInfo.program);
   twgl.setBuffersAndAttributes(gl, programInfo, positionBuffer);
-
-  if (IS_LOG) {
-    document.querySelector('.log').innerHTML =
-      'devicePixelRatio=' +
-      window.devicePixelRatio +
-      ' tier=' +
-      GPUTier.tier +
-      ' type=' +
-      GPUTier.type +
-      '<br/>' +
-      'applied: ' +
-      'px ratio: ' +
-      pixelRatio +
-      ', fps: ' +
-      fps +
-      '<br/>' +
-      '(' +
-      window.innerWidth +
-      ',' +
-      window.innerHeight +
-      ')' +
-      '<br/>' +
-      '(' +
-      canvas.width +
-      ',' +
-      canvas.height +
-      ')' +
-      '<br/>' +
-      '(buffer size: ' +
-      bufferSize +
-      ')';
-  }
 }
 
 function run() {
@@ -231,31 +163,77 @@ function resize() {
 }
 
 function render(time) {
-  if (audio.readyState !== 4) {
+  /*  if (audio.readyState !== 4) {
     return;
-  }
+  } */
 
   resize();
 
-  clubber.update();
-  //console.log(audio.readyState, clubber.notes);
+  analyser.getByteFrequencyData(heightArray);
 
-  bands.low(iMusicLow);
-  bands.sub(iMusicSub);
-  bands.high(iMusicHigh);
-  bands.mid(iMusicMid);
+  if (clubber) {
+    // console.log(NaN, clubber.time / 1000);
 
-  twgl.setUniforms(programInfo, {
-    iMusicSub: iMusicSub,
-    iMusicLow: iMusicLow,
-    iMusicMid: iMusicMid,
-    iMusicHigh: iMusicHigh,
-    iGlobalTime: clubber.time / 1000,
-    iResolution: [displayWidth, displayHeight],
-  });
+    clubber.update(null, heightArray, false);
+
+    bands.low(iMusicLow);
+    bands.sub(iMusicSub);
+    bands.high(iMusicHigh);
+    bands.mid(iMusicMid);
+
+    twgl.setUniforms(programInfo, {
+      iMusicSub: iMusicSub,
+      iMusicLow: iMusicLow,
+      iMusicMid: iMusicMid,
+      iMusicHigh: iMusicHigh,
+      iGlobalTime: time,
+      iResolution: [displayWidth, displayHeight],
+    });
+  }
 
   twgl.bindFramebufferInfo(gl, null);
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
+
+  if (IS_LOG) {
+    document.querySelector('.log').innerHTML =
+      'devicePixelRatio=' +
+      window.devicePixelRatio +
+      ' tier=' +
+      gpuTools.gpuTier.levelTier +
+      ' type=' +
+      gpuTools.gpuTier.type +
+      '<br/>' +
+      'applied: ' +
+      'pixel ratio=' +
+      pixelRatio +
+      ', fps=' +
+      fps +
+      '<br/>' +
+      '(' +
+      window.innerWidth +
+      ',' +
+      window.innerHeight +
+      ')' +
+      '<br/>' +
+      '(' +
+      canvas.width +
+      ',' +
+      canvas.height +
+      ')' +
+      '<br/>' +
+      '(bufferSize: ' +
+      bufferSize +
+      ')' +
+      '<br/>' +
+      analyser.frequencyBinCount +
+      ':' +
+      audioContext.state +
+      '<br/>' +
+      time
+      //'+<br/>' +
+      //heightArray;
+    //+ clubber.time;
+  }
 }
 
 function stop() {
@@ -274,32 +252,106 @@ function lost(e) {
 
 function restore(e) {
   console.warn('restored');
-  initGL();
+  demo();
 }
 
-function bindTrax(index = 0) {
-  audio.src = 'https://api.soundcloud.com/tracks/' + tracks[index] + '/stream?client_id=' + CLIENT_ID;
-  audio
-    .play()
-    .then(() => {
-      console.log('play&run', audio.src);
-      then = window.performance.now();
-      initClubber();
-      console.log(clubber.context.state);
-      clubber.listen(audio);
-      clubber.context.resume();
-      console.log(clubber.context.state);
-      run();
-    })
-    .catch(error => {
-      console.warn(error);
-    });
-}
+function initAudio() {}
 
 function start() {
   cover.removeEventListener('click', start);
-  TweenMax.to(cover, 0.35, { autoAlpha: 0 });
-  bindTrax(2);
+
+  TweenMax.to(cover, 0.5, { autoAlpha: 0 });
+
+  audioContext = new (window.AudioContext || window.webkitAudioContext)();
+  analyser = audioContext.createAnalyser();
+
+  numPoints = analyser.frequencyBinCount;
+
+  analyser.fftSize = 4096;
+  heightArray = new Uint8Array(numPoints);
+  //console.log(numPoints, heightArray);
+
+  audio.addEventListener('canplay', event => {
+    // document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
+    try {
+
+      source = audioContext.createMediaElementSource(audio);
+      source.connect(analyser);
+
+      analyser.connect(audioContext.destination);
+
+      clubber = new Clubber({
+        context: audioContext,
+        analyser: analyser,
+      });
+
+      bands = {
+        sub: clubber.band({
+          from: 1,
+          to: 32,
+          smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+
+          low: 64,
+          high: 128,
+        }),
+
+        low: clubber.band({
+          from: 32,
+          to: 48,
+          smooth: [0.1, 0.1, 0.1, 0.1], // Exponential smoothing factors for each of the four returned values
+
+          low: 64,
+          high: 128,
+        }),
+
+        mid: clubber.band({
+          from: 48,
+          to: 64,
+          smooth: [0.1, 0.1, 0.1, 0.1],
+          low: 64,
+          high: 128,
+        }),
+
+        high: clubber.band({
+          from: 64,
+          to: 96,
+          smooth: [0.1, 0.1, 0.1, 0.1],
+          low: 64,
+          high: 128,
+        }),
+      };
+    } catch (e) {
+      console.log(e.toString());
+    }
+  });
+  audio.addEventListener('error', function(e) {
+    console.log(e.toString());
+  });
+
+  audio.src = 'https://api.soundcloud.com/tracks/' + tracks[0] + '/stream?client_id=' + CLIENT_ID;
+  // audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
+  audio.play();
+
+  TweenMax.to( audio, 8, { volume: 0.15})
+  then = window.performance.now();
+  run();
+
+  /*  webAudioTouchUnlock(audioContext).then(
+    unlocked => {
+      if (unlocked) {
+        document.querySelector('.log').innerHTML += '<br/>ios: unlocked context ' + audioContext.state;
+      } else {
+        document.querySelector('.log').innerHTML += '<br/>no-ios: unlocked context ' + audioContext.state;
+      }
+
+      } catch (e) {
+        document.querySelector('.log').innerHTML += '<br/>' + e.toString();
+      }
+    },
+    reason => {
+      document.querySelector('.log').innerHTML += '<br/>error: ' + reason.toString();
+    }
+  ); */
 }
 
 demo();

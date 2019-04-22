@@ -46,7 +46,7 @@ body {
   position: fixed;
   bottom:0;
   left: 50%;
-  width: 50vw;
+  width: 60vw;
   z-index: 1;
   transform: translate3d(-50%, 0, 0);
 
@@ -159,6 +159,7 @@ body>div:not(.demo){
   display: -webkit-flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
   flex-direction: column;
   width: 100vw;
   height: 100vh;
@@ -173,10 +174,13 @@ body>div:not(.demo){
   background-color: rgba(0, 0, 0, .85);
 
   > blockquote{
-    width: 40vw;
+    font-size: 0.85rem;
+    width: 50vw;
+    letter-spacing: 2px
   }
   > span{
-    font-size: 0.85rem;
+    font-size: 0.5em;
+    letter-spacing: 3px
   }
 
 }

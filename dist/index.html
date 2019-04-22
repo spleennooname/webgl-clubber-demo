@@ -12,44 +12,45 @@
   <!-- Facebook Metas-->
   <meta property="og:url" content="http://spleennooname.github.io/webgl-clubber-demo/index.html">
   <meta property="og:type" content="website">
-  <meta property="og:title" content="WebGL audio visualizer - Clubber + SoundCloud - by Andrea Bovo | spleen666@gmail.com">
+  <meta property="og:title" content="WebGL audio visualizer - Clubber   - by Andrea Bovo | spleen666@gmail.com">
   <meta property="og:description" content="detecting beat&rhythm & redirect output to GLSL shader. ">
   <meta property="og:image" content="https://spleennooname.github.io/webgl-clubber-demo/screenshot.png">
   <!-- Twitter Metas-->
   <meta property="twitter:card" content="summary_large_image">
   <meta property="twitter:creator" content="@vivacchio">
-  <meta property="twitter:title" content="WebGL audio visualizer - Clubber + SoundCloud - by Andrea Bovo | spleen666@gmail.com">
+  <meta property="twitter:title" content="WebGL audio visualizer - Clubber   - by Andrea Bovo | spleen666@gmail.com">
   <meta property="twitter:description" content="detecting beat&rhythm & redirect output to GLSL shader.">
   <meta property="twitter:image" content="https://spleennooname.github.io/webgl-clubber-demo/screenshot.png">
   <meta property="twitter:image:width" content="640">
   <meta property="twitter:image:height" content="630">
   <!-- Chrome on Android -->
   <meta name="mobile-web-app-capable" content="yes">
-  <meta name="application-name" content="WebGL audio visualizer - Clubber + SoundCloud - by Andrea Bovo | spleen666@gmail.com">
+  <meta name="application-name" content="WebGL audio visualizer - Clubber   - by Andrea Bovo | spleen666@gmail.com">
   <!-- Safari on iOS -->
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
-  <meta name="apple-mobile-web-app-title" content="WebGL audio visualizer - Clubber + SoundCloud - by Andrea Bovo | spleen666@gmail.com">
+  <meta name="apple-mobile-web-app-title" content="WebGL audio visualizer - Clubber   - by Andrea Bovo | spleen666@gmail.com">
   <meta name="msapplication-TileColor" content="#FFFFFF">
   <meta name="msapplication-tap-highlight" content="no">
   <meta name="theme-color" content="#000000">
-  <title>WebGL audio visualizer - Clubber + SoundCloud - by Andrea Bovo | spleen666@gmail.com</title>
+  <title>WebGL audio visualizer - Clubber   - by Andrea Bovo | spleen666@gmail.com</title>
   <link media="all" href='https://fonts.googleapis.com/css?family=EB+Garamond' rel='stylesheet' type='text/css'>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/stats.js/r16/Stats.min.js"></script>
-  <script src="./clubber.js"></script>
+ <!--  <script src="./clubber.js"></script> -->
   <link href="./styles.css" rel="stylesheet">
 </head>
 
 <body>
-  <audio loop id="audio" controls></audio>
+  <audio id="audio" controls></audio>
   <div class="demo">
     <canvas id="canvas"></canvas>
     <div class="log"></div>
     <div class="cover">
-        <blockquote>WebGL Audio Visualizer</blockquote><br />
-        <span>featuring ClubberJS && SoundCloud</span>
+        <blockquote>WebGL Audio <span style="color:red">sin </span>Waveforms</blockquote>
+        <span>featuring ClubberJS</span>
         <br/>
-        <span>click to play.</span>
+        <br/>
+        <span style="font-size: 0.5em">click to play</span>
       </div>
   </div>
   <script type="text/javascript" src="app.build.js"></script>

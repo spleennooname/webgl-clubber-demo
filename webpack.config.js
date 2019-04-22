@@ -2,6 +2,8 @@
 
 const webpack = require('webpack');
 const path = require('path');
+
+const TerserPlugin = require('terser-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 
 function resolve(dir) {
@@ -13,16 +15,14 @@ function isProduction() {
 }
 
 const config = {
-
   mode: process.env.NODE_ENV,
 
   entry: {
-    'app': './src/app.js'
+    app: './src/app.js',
   },
 
   output: {
     path: resolve('./dist'),
-    //publicPath: '/dist/',
     filename: '[name].build.js',
   },
 
@@ -37,21 +37,24 @@ const config = {
   optimization: {
     minimize: isProduction(),
     noEmitOnErrors: true,
-    moduleIds: 'total-size',
-    /*  minimizer: [
-       new OptimizeCSSAssetsPlugin({})
-     ] */
+    namedModules: true,
+    minimizer: [
+      new TerserPlugin({
+        cache: true,
+        parallel: true,
+        sourceMap: false, // Must be set to true if using source-maps in production
+        terserOptions: {
+          // https://github.com/webpack-contrib/terser-webpack-plugin#terseroptions
+        },
+      })
+    ],
   },
 
   module: {
     rules: [
       {
         test: /\.scss$/,
-        use: [
-          { loader: MiniCssExtractPlugin.loader, options: {} },
-          { loader: 'css-loader', options: {} },
-          { loader: 'sass-loader', options: {} },
-        ],
+        use: [{ loader: MiniCssExtractPlugin.loader, options: {} }, { loader: 'css-loader', options: {} }, { loader: 'sass-loader', options: {} }],
       },
       {
         test: /\.(glsl|vs|fs)$/,
@@ -59,8 +62,8 @@ const config = {
         options: {
           glsl: {
             chunkPath: path.resolve(__dirname, './glsl/chunks'),
-          }
-        }
+          },
+        },
       },
       {
         test: /\.js$/,
@@ -75,7 +78,7 @@ const config = {
 
     new MiniCssExtractPlugin({
       filename: 'styles.css',
-    })
+    }),
   ],
 };
 

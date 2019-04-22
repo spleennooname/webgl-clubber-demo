@@ -47,17 +47,47 @@ float blur(float dist, float width, float blur, float intens) {
 }
 
 float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
+
   // 0 the note where the highest energy was seen,
   // 1 the average note for the whole band,
   // 2 the octave (bass vs treble) and
   // 3 the average energy of all triggered notes.
-  float w = ( 1.05 * high[1] + high[0]  + high[2] + mid[0] * 1.05 ) / 1.;
-  float w_x = ( sub[1] + mid[0] + 1.05 * low[0]+ high[3] ) / 1.;
 
-  // between 0.1 and 0.
-  float amp = 1. * smoothstep(mix(0., .75, w) - .5 * i, 0., x);
+  float l = 1.0 * low[0] + low[1] + low[3];
+  float m = 1.0 * mid[0] + mid[3];
+  float h = 1.0 * high[0] + high[1];
+  float s = 1.0 * sub[0];
 
-  float y = amp * sin( 5.*x + time - .15 * i * mix(-.5, +.5, w_x) );
+  float wa = low[1] + high[0] + high[3] + mid[3] + mid[0];
+  float wx = ( l + m + s + h) / 1.;
+
+  /**if ( i == 1.){
+    w = l;
+  }
+
+  if (i == 2.) {
+    w = l +  m;
+  }
+
+  if (i == 3.) {
+    w = s + m;
+  }
+
+  if (i >= 4.) {
+    w = h + s;
+  }
+
+  w = l + h + m - s;*/
+
+  // amp. wave
+  // mix(x, y, a) = linear interpolate value between x and y with weight a
+  // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
+  // a weight a
+  float amp = .75 * smoothstep(0., mix(0., 0.95, wa) - 0.5 * i, noise(x) );
+
+  // wave form
+  // 10. * x + 0.55 * time -
+  float y = amp * sin( 3.*x + time - .95 * i * mix(0., 1., wx) );
 
   return y;
 }
@@ -70,10 +100,10 @@ void main() {
   float red = 0.0;
 
   for (float i = 0.; i < N_WAVES; i+=1.0) {
-    float d = distance( 1.0 * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );
+    float d = distance( 1.25 * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );
     float b = 0.15 * i + 0.0001;
     red += blur(d, 0.009, b, 0.75);
   }
 
-  gl_FragColor = vec4( vec3(1., 0., 0.) - vec3(red, .0, .0),  1.0);
+  gl_FragColor = vec4( vec3(1.- red, .0, .0),  1.0);
 }

@@ -1,25 +1,26 @@
 {
-  "name": "webg-clubber-demo",
+  "name": "webgl-clubber-demo",
   "version": "1.1.0",
-  "description": "A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhythm & redirect output through GLSL shader.",
+  "description": "A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhythm & redirect output to GLSL shader.",
   "author": "Andrea Bovo <spleen666@gmail.com>",
   "license": "MIT",
   "private": true,
   "repository": {
     "type": "git",
-    "url": "https://github.com/spleennooname/webg-clubber-demo.git"
+    "url": "https://github.com/spleennooname/webgl-clubber-demo.git"
   },
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --mode=production --config webpack.config.js",
-    "dev": "cross-env NODE_ENV=development  webpack-dev-server --config webpack.config.js",
+    "dev": "cross-env NODE_ENV=development  webpack-dev-server --mode=development --config webpack.config.js",
     "deploy": "surge dist waves-clubber.surge.sh"
   },
   "bugs": {
-    "url": "https://github.com/spleennooname/webg-clubber-demo/issues"
+    "url": "https://github.com/spleennooname/webgl-clubber-demo/issues"
   },
   "keywords": [
     "WebGL",
     "clubber",
+    "webaudio",
     "twgl",
     "waves",
     "glsl",
@@ -29,7 +30,9 @@
     "clubber": "^1.7.1",
     "detect-gpu": "0.0.40",
     "gsap": "^2.0.2",
-    "twgl.js": "^4.9.1"
+    "standardized-audio-context": "^19.1.1",
+    "twgl.js": "^4.9.1",
+    "web-audio-touch-unlock": "^1.0.1"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",
@@ -45,6 +48,7 @@
     "optimize-css-assets-webpack-plugin": "^5.0.1",
     "sass-loader": "^7.1.0",
     "shader-loader": "^1.3.1",
+    "terser-webpack-plugin": "^1.2.3",
     "webpack": "^4.28.4",
     "webpack-cli": "^3.2.1",
     "webpack-dev-server": "^3.1.14"
