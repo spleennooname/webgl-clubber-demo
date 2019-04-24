@@ -111,7 +111,7 @@ function initGL() {
 
   const gpu = gpuTools.getBestGPUSettings();
   bufferSize = gpu.bufferSize;
-  fps = 60; //gpu.fps; try max fps
+  fps = 50; //gpu.fps; try max fps
   pixelRatio = gpu.ratio;
 
   interval = 1000 / fps;
@@ -171,7 +171,7 @@ function render(time) {
 
   analyser.getByteFrequencyData(heightArray);
 
-   if (clubber) {
+  if (clubber) {
     clubber.update(null, heightArray, false);
 
     bands.low(iMusicLow);
@@ -264,7 +264,7 @@ function start() {
 
   numPoints = analyser.frequencyBinCount;
 
-  analyser.fftSize = 2048;
+  analyser.fftSize = 1024;
   heightArray = new Uint8Array(numPoints);
   //console.log(numPoints, heightArray);
 
@@ -276,44 +276,42 @@ function start() {
 
       analyser.connect(audioContext.destination);
 
-     clubber = new Clubber({
+      clubber = new Clubber({
         context: audioContext,
         analyser: analyser,
       });
 
-       bands = {
+      bands = {
         sub: clubber.band({
           from: 1,
           to: 32,
           smooth: [0.1, 0.1, 0.1, 0.1],
-
-          low: 64,
-          high: 128,
+          /* low: 64,
+          high: 128, */
         }),
 
         low: clubber.band({
           from: 32,
           to: 48,
           smooth: [0.1, 0.1, 0.1, 0.1],
-
-          low: 64,
-          high: 128,
+          /*  low: 64,
+          high: 128, */
         }),
 
         mid: clubber.band({
           from: 48,
           to: 64,
           smooth: [0.1, 0.1, 0.1, 0.1],
-          low: 64,
-          high: 128,
+          /*  low: 64,
+          high: 128, */
         }),
 
         high: clubber.band({
           from: 64,
           to: 96,
           smooth: [0.1, 0.1, 0.1, 0.1],
-          low: 64,
-          high: 128,
+          /* low: 64,
+          high: 128, */
         }),
       };
     } catch (e) {
@@ -325,10 +323,11 @@ function start() {
   });
 
   //audio.src = 'https://api.soundcloud.com/tracks/' + tracks[2] + '/stream?client_id=' + CLIENT_ID;
-  audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
+  //audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
+  audio.src = 'mp3/Bagatelleop119n1.mp3';
   audio.play();
 
-  TweenMax.to(audio, 8, { volume: 0.15 });
+  TweenMax.to(audio, 3, { volume: 0.75 });
   then = window.performance.now();
   run();
 

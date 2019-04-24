@@ -16,7 +16,7 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define R iResolution.xy
 
-#define N_WAVES 5.0
+#define N_WAVES 4.0
 
 // noise
 float rand(float n) {
@@ -55,10 +55,10 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
 
   float l = 1.0 * low[0] + low[1] + low[3];
   float m = 1.0 * mid[0] + mid[3];
-  float h = 1.0 * high[0] + high[1];
-  float s = 1.0 * sub[0];
+  float h = 1.0 * high[3] + high[1];
+  float s = 1.0 * sub[3] + sub[1];
 
-  float wa = low[1] + high[0] + high[3] + mid[3] + mid[0];
+  float wa = low[3] + high[1] + high[3] + mid[3] + mid[1];
   float wx = ( l + m + s + h) / 1.;
 
   /**if ( i == 1.){
@@ -83,11 +83,11 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
   // mix(x, y, a) = linear interpolate value between x and y with weight a
   // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
   // a weight a
-  float amp = .75 * smoothstep(0., mix(0., 0.95, wa) - 0.5 * i, noise(x) );
+  float amp = .75 * smoothstep(0., mix(0., 1.0, wa) - 0.5 * i, x );
 
   // wave form
   // 10. * x + 0.55 * time -
-  float y = amp * sin( 3.*x + time - .95 * i * mix(0., 1., wx) );
+  float y = amp * sin( 2.*x + time - .95 * i * mix(0., 1., wx) );
 
   return y;
 }
