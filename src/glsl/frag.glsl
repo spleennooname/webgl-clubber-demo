@@ -5,6 +5,7 @@ precision highp float;
 
 varying vec2 vUv;
 
+uniform sampler2D uTexture;
 uniform float iGlobalTime;
 uniform vec2 iResolution;
 
@@ -16,7 +17,9 @@ uniform vec4 iMusicHigh;
 #define time iGlobalTime
 #define R iResolution.xy
 
-#define N_WAVES 4.0
+#define COLOR 0.0
+
+#define N_WAVES 5.0
 
 // noise
 float rand(float n) {
@@ -36,14 +39,14 @@ float noise(float p) {
   return mix(hash11(fl), rand(fl + 1.0), fc);
 }
 
-float gauss(
-  float s, float x) { return (0.85) * exp(-x * x / (2. * s * s));
+float gauss(float s, float x) {
+  return (0.85) * exp(-x * x / (2. * s * s));
 }
 
 float blur(float dist, float width, float blur, float intens) {
   dist = max(abs(dist) - width, 0.);
-  float b = gauss(0.02 + width * 8. * blur, dist);
-  return b * intens * 1.;
+  float b = gauss(0.02 + width * 2. * blur, dist);
+  return b * intens + .75 * width;
 }
 
 float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
@@ -61,24 +64,6 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
   float wa = low[3] + high[1] + high[3] + mid[3] + mid[1];
   float wx = ( l + m + s + h) / 1.;
 
-  /**if ( i == 1.){
-    w = l;
-  }
-
-  if (i == 2.) {
-    w = l +  m;
-  }
-
-  if (i == 3.) {
-    w = s + m;
-  }
-
-  if (i >= 4.) {
-    w = h + s;
-  }
-
-  w = l + h + m - s;*/
-
   // amp. wave
   // mix(x, y, a) = linear interpolate value between x and y with weight a
   // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
@@ -94,16 +79,17 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
 
 void main() {
 
-  vec2 uv = (2. * gl_FragCoord.xy - 1. * R) / R.y;
+  vec2 uv = (1. * gl_FragCoord.xy - .5 * R) / R.y;
+  //vec2 uv = (2. * gl_FragCoord.xy - 1. * R) / R.y;
   //vec2 uv = ( fragCoord - .5*R ) / R.y;  // [-1/2,1/2] vertically
-
-  float red = 0.0;
-
+  float col = 0.0;
   for (float i = 0.; i < N_WAVES; i+=1.0) {
     float d = distance( 1.25 * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );
-    float b = 0.15 * i + 0.0001;
-    red += blur(d, 0.009, b, 0.75);
+    float b = 0.25 * i + 0.001;
+    col += blur(d, 0.009, b, 0.5);
   }
 
-  gl_FragColor = vec4( vec3(1.- red, .0, .0),  1.0);
+  float note = (iMusicHigh[3] * .5 +  iMusicHigh[0] * .5 + iMusicMid[3] * .5 + iMusicLow[3] * .5 +  iMusicLow[0] * .5) / 2.5;
+
+  gl_FragColor = mix(vec4(vec3(1. - col), 1.0), texture2D(uTexture, uv), note);
 }

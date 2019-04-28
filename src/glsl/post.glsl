@@ -8,12 +8,9 @@ uniform vec2 uResolution;
 #define R uResolution
 #define time uTime
 
-float v = 0.01;
-float r = 0.5;
-
 void main() {
 
-  vec2 uv = gl_FragCoord.xy / R.xy;
+  vec2 uv = (2. * gl_FragCoord.xy - .5*R) / R.y;
   /* vec4 sum = vec4(0.0);
   float vv = v * abs(r - uv.y);
 

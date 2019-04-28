@@ -25,6 +25,10 @@ let canvas,
   positionBuffer,
   iosUnlock,
   rafID = -1,
+  fb1,
+  fb2,
+  tmp,
+  texture,
   source,
   gpuTools,
   pixelRatio = 0,
@@ -33,6 +37,7 @@ let canvas,
   audioContext,
   analyser,
   programInfo,
+  postInfo,
   stats,
   numPoints,
   heightArray,
@@ -55,7 +60,9 @@ let cover,
   iMusicSub = [0.0, 0.0, 0.0, 0.0],
   iMusicLow = [0.0, 0.0, 0.0, 0.0],
   iMusicMid = [0.0, 0.0, 0.0, 0.0],
-  iMusicHigh = [0.0, 0.0, 0.0, 0.0];
+  iMusicHigh = [0.0, 0.0, 0.0, 0.0],
+  smoothArray = [0.1, 0.1, 0.1, 0.1],
+  adaptArray = [.1, .1, 0.1, 0.1];
 
 const CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d';
 
@@ -84,17 +91,6 @@ function demo() {
   canvas.addEventListener('webglcontextlost', lost, false);
   canvas.addEventListener('webglcontextrestored', restore, false);
 
-  // device pointers
-  /* canvas.addEventListener('mousemove', setPos, false);
-  canvas.addEventListener('mouseleave', () => {
-    mouse = [0.5, 0.5];
-  });
-  canvas.addEventListener('mousedown', e => {
-    console.log(e);
-  });
-  canvas.addEventListener('contextmenu', e => e.preventDefault());
-  canvas.addEventListener('touchstart', setTouch, { passive: false });
-  canvas.addEventListener('touchmove', setTouch, { passive: false }); */
   // cover click
   cover = document.querySelector('.cover');
   cover.addEventListener('click', event => {
@@ -122,14 +118,33 @@ function initGL() {
 
   gl = twgl.getContext(canvas, { depth: false, antialiasing: true });
 
+  fb1 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
+  fb2 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
+
+  texture = null;
+
   programInfo = twgl.createProgramInfo(gl, [vs, fs]);
+  postInfo = twgl.createProgramInfo(gl, [vs, ps]);
 
   positionBuffer = twgl.createBufferInfoFromArrays(gl, {
     position: { data: [-1, -1, -1, 4, 4, -1], numComponents: 2 },
   });
 
+  //resize();
+
   gl.useProgram(programInfo.program);
   twgl.setBuffersAndAttributes(gl, programInfo, positionBuffer);
+  twgl.setUniforms(programInfo, {
+    iMusicSub: iMusicSub,
+    iMusicLow: iMusicLow,
+    iMusicMid: iMusicMid,
+    iMusicHigh: iMusicHigh,
+    uTexture: texture,
+    iGlobalTime: 0.1,
+    iResolution: [displayWidth, displayHeight],
+  });
+  twgl.bindFramebufferInfo(gl, fb1);
+  twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
 }
 
 function run() {
@@ -180,16 +195,35 @@ function render(time) {
     bands.mid(iMusicMid);
   }
 
+  gl.useProgram(programInfo.program);
+  twgl.setBuffersAndAttributes(gl, programInfo, positionBuffer);
   twgl.setUniforms(programInfo, {
     iMusicSub: iMusicSub,
     iMusicLow: iMusicLow,
     iMusicMid: iMusicMid,
     iMusicHigh: iMusicHigh,
     iGlobalTime: time,
+    uTexture: fb1.attachments[0], //1st initially empty
     iResolution: [displayWidth, displayHeight],
+  });
+  twgl.bindFramebufferInfo(gl, fb2);
+  twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
+
+  // draw fb1 in canvas
+  gl.useProgram(postInfo.program);
+  twgl.setBuffersAndAttributes(gl, postInfo, positionBuffer);
+  twgl.setUniforms(postInfo, {
+    uTime: time,
+    uResolution: [displayWidth, displayHeight],
+    uTexture: fb1.attachments[0],
   });
   twgl.bindFramebufferInfo(gl, null);
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
+
+  // ping-pong buffers
+  tmp = fb1;
+  fb1 = fb2;
+  fb2 = tmp;
 
   if (IS_LOG) {
     document.querySelector('.log').innerHTML =
@@ -285,7 +319,8 @@ function start() {
         sub: clubber.band({
           from: 1,
           to: 32,
-          smooth: [0.1, 0.1, 0.1, 0.1],
+          smooth: smoothArray,
+          adapt: adaptArray,
           /* low: 64,
           high: 128, */
         }),
@@ -293,7 +328,8 @@ function start() {
         low: clubber.band({
           from: 32,
           to: 48,
-          smooth: [0.1, 0.1, 0.1, 0.1],
+          smooth: smoothArray,
+          adapt: adaptArray,
           /*  low: 64,
           high: 128, */
         }),
@@ -301,15 +337,17 @@ function start() {
         mid: clubber.band({
           from: 48,
           to: 64,
-          smooth: [0.1, 0.1, 0.1, 0.1],
+          smooth: smoothArray,
+          adapt: adaptArray,
           /*  low: 64,
           high: 128, */
         }),
 
         high: clubber.band({
           from: 64,
-          to: 96,
-          smooth: [0.1, 0.1, 0.1, 0.1],
+          to: 160,
+          smooth: smoothArray,
+          adapt: adaptArray,
           /* low: 64,
           high: 128, */
         }),
