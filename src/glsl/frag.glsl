@@ -19,7 +19,7 @@ uniform vec4 iMusicHigh;
 
 #define COLOR 0.0
 
-#define N_WAVES 5.0
+#define N_WAVES 8.0
 
 // noise
 float rand(float n) {
@@ -56,25 +56,29 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
   // 2 the octave (bass vs treble) and
   // 3 the average energy of all triggered notes.
 
-  float l = 1.0 * low[0] + low[1] + low[3];
-  float m = 1.0 * mid[0] + mid[3];
-  float h = 1.0 * high[3] + high[1];
-  float s = 1.0 * sub[3] + sub[1];
+  float l = 1.0 * low[0] ;
+  float m = 1.0 * mid[0];
+  float h = 1.0 * high[0];
+  float s = 1.0 * sub[0];
 
-  float wa = low[3] + high[1] + high[3] + mid[3] + mid[1];
-  float wx = ( l + m + s + h) / 1.;
+  float amp = mix(0., 1.0, high[1] + high[0] + sub[2] + mid[0] - .15 * i + x );
+  float fq =  2. * x - .45* time - .15 * i * mix(0., 3.0, sub[3] + mid[0] + low[0] + high[3]);
 
   // amp. wave
   // mix(x, y, a) = linear interpolate value between x and y with weight a
   // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
-  // a weight a
-  float amp = .75 * smoothstep(0., mix(0., 1.0, wa) - 0.5 * i, x );
+
+  //float amp =mix(0., 0.75, wa - .25*x) ;
+  // float amp = .75 * smoothstep( wa - 0.5 * i, .5, x );
+  //float amp = mix(0., +.75,  high[1]*.75 + high[0] + mid[0]) - .25*i;
 
   // wave form
   // 10. * x + 0.55 * time -
-  float y = amp * sin( 2.*x + time - .95 * i * mix(0., 1., wx) );
+  //float fq = x*1.45  + .55*time- i * mix(-.5, +.5, sub[1] + mid[0] + low[0] + high[3]);
+  //float y = amp * sin( 1.*x + 0.25 * time - .25 * i * mix(0., 1.0, wx) );
+  //float y = amp * sin( fq );
 
-  return y;
+  return amp * sin(fq);
 }
 
 void main() {
@@ -82,14 +86,16 @@ void main() {
   vec2 uv = (1. * gl_FragCoord.xy - .5 * R) / R.y;
   //vec2 uv = (2. * gl_FragCoord.xy - 1. * R) / R.y;
   //vec2 uv = ( fragCoord - .5*R ) / R.y;  // [-1/2,1/2] vertically
+
   float col = 0.0;
   for (float i = 0.; i < N_WAVES; i+=1.0) {
-    float d = distance( 1.25 * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );
-    float b = 0.25 * i + 0.001;
+    float d = distance( 2. * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );
+    float b = 0.5 *i + 0.001;
     col += blur(d, 0.009, b, 0.5);
   }
 
-  float note = (iMusicHigh[3] * .5 +  iMusicHigh[0] * .5 + iMusicMid[3] * .5 + iMusicLow[3] * .5 +  iMusicLow[0] * .5) / 2.5;
+  // float note = smoothstep(0., 0.55, (iMusicLow[3] + iMusicMid[1] + iMusicHigh[3] * .25) / 3. );
+  float note = smoothstep(0., 1., (iMusicMid[0] * 1.0 +  iMusicHigh[3] * 0.75) / (1.0 + 0.75) ) ;
 
-  gl_FragColor = mix(vec4(vec3(1. - col), 1.0), texture2D(uTexture, uv), note);
+  gl_FragColor = mix( vec4( vec3(abs(1. - col), 0., 0), 1.), texture2D(uTexture, uv), note);
 }

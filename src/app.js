@@ -8,8 +8,8 @@ import vs from './glsl/vert.glsl';
 import fs from './glsl/frag.glsl';
 import ps from './glsl/post.glsl';
 
-// import Clubber from 'clubber';
-// import { AudioContext } from 'standardized-audio-context';
+import Clubber from 'clubber';
+import { AudioContext } from 'standardized-audio-context';
 import GPUTools from './GPUTools';
 /* import IosUnlock from './iosUnlock'; */
 
@@ -18,7 +18,7 @@ import GPUTools from './GPUTools';
 import { TweenMax } from 'gsap';
 import * as twgl from 'twgl.js';
 
-const IS_LOG = true;
+const IS_LOG = false;
 
 let canvas,
   gl,
@@ -51,7 +51,13 @@ let now = 0,
 
 let bufferSize = 512;
 
-const tracks = ['577151343', '396848079', '92039697'];
+const tracks = [
+  '310025963', // unkle remix
+  '80365115', // kraftw
+  '577151343',
+  '396848079',
+  '92039697',
+];
 
 let cover,
   audio,
@@ -62,7 +68,7 @@ let cover,
   iMusicMid = [0.0, 0.0, 0.0, 0.0],
   iMusicHigh = [0.0, 0.0, 0.0, 0.0],
   smoothArray = [0.1, 0.1, 0.1, 0.1],
-  adaptArray = [.1, .1, 0.1, 0.1];
+  adaptArray = [1, 1, 1, 1];
 
 const CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d';
 
@@ -93,6 +99,7 @@ function demo() {
 
   // cover click
   cover = document.querySelector('.cover');
+  TweenMax.to(cover.querySelector('.t'), 3.0, { autoAlpha: 1 });
   cover.addEventListener('click', event => {
     start();
   });
@@ -107,21 +114,19 @@ function initGL() {
 
   const gpu = gpuTools.getBestGPUSettings();
   bufferSize = gpu.bufferSize;
-  fps = 50; //gpu.fps; try max fps
+  fps = 60; //gpu.fps; try max fps
   pixelRatio = gpu.ratio;
 
   interval = 1000 / fps;
 
-  stats = new Stats();
+  /*  stats = new Stats();
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild(stats.domElement);
+  document.body.appendChild(stats.domElement); */
 
   gl = twgl.getContext(canvas, { depth: false, antialiasing: true });
 
   fb1 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
   fb2 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
-
-  texture = null;
 
   programInfo = twgl.createProgramInfo(gl, [vs, fs]);
   postInfo = twgl.createProgramInfo(gl, [vs, ps]);
@@ -129,22 +134,6 @@ function initGL() {
   positionBuffer = twgl.createBufferInfoFromArrays(gl, {
     position: { data: [-1, -1, -1, 4, 4, -1], numComponents: 2 },
   });
-
-  //resize();
-
-  gl.useProgram(programInfo.program);
-  twgl.setBuffersAndAttributes(gl, programInfo, positionBuffer);
-  twgl.setUniforms(programInfo, {
-    iMusicSub: iMusicSub,
-    iMusicLow: iMusicLow,
-    iMusicMid: iMusicMid,
-    iMusicHigh: iMusicHigh,
-    uTexture: texture,
-    iGlobalTime: 0.1,
-    iResolution: [displayWidth, displayHeight],
-  });
-  twgl.bindFramebufferInfo(gl, fb1);
-  twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
 }
 
 function run() {
@@ -153,9 +142,9 @@ function run() {
   if (delta > interval) {
     then = now - (delta % interval);
     let t = now / 1000;
-    stats.begin();
+    //stats.begin();
     render(t);
-    stats.end();
+    //stats.end();
   }
   rafID = requestAnimationFrame(run);
 }
@@ -188,11 +177,16 @@ function render(time) {
 
   if (clubber) {
     clubber.update(null, heightArray, false);
-
     bands.low(iMusicLow);
     bands.sub(iMusicSub);
     bands.high(iMusicHigh);
     bands.mid(iMusicMid);
+
+    let high = iMusicHigh;
+    let mid = iMusicMid;
+    let sub = iMusicSub;
+    let low = iMusicLow;
+    console.log(sub, low, mid, high);
   }
 
   gl.useProgram(programInfo.program);
@@ -260,7 +254,8 @@ function render(time) {
       ':' +
       audioContext.state +
       '<br/>' +
-      time;
+      time +
+      '<br/>';
     //'+<br/>' +
     //heightArray;
     //+ clubber.time;
@@ -303,7 +298,7 @@ function start() {
   //console.log(numPoints, heightArray);
 
   audio.addEventListener('canplay', event => {
-    document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
+    //document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
     try {
       source = audioContext.createMediaElementSource(audio);
       source.connect(analyser);
@@ -317,6 +312,7 @@ function start() {
 
       bands = {
         sub: clubber.band({
+          template: '0123',
           from: 1,
           to: 32,
           smooth: smoothArray,
@@ -326,6 +322,7 @@ function start() {
         }),
 
         low: clubber.band({
+          template: '0123',
           from: 32,
           to: 48,
           smooth: smoothArray,
@@ -335,6 +332,7 @@ function start() {
         }),
 
         mid: clubber.band({
+          template: '0123',
           from: 48,
           to: 64,
           smooth: smoothArray,
@@ -344,8 +342,9 @@ function start() {
         }),
 
         high: clubber.band({
+          template: '0123',
           from: 64,
-          to: 160,
+          to: 128,
           smooth: smoothArray,
           adapt: adaptArray,
           /* low: 64,
@@ -360,31 +359,17 @@ function start() {
     console.log(e.toString());
   });
 
-  //audio.src = 'https://api.soundcloud.com/tracks/' + tracks[2] + '/stream?client_id=' + CLIENT_ID;
+  //audio.src = 'https://api.soundcloud.com/tracks/' + tracks[0] + '/stream?client_id=' + CLIENT_ID;
   //audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
   audio.src = 'mp3/Bagatelleop119n1.mp3';
+  //audio.src = 'mp3/shit.mp3';
+  //audio.src = 'mp3/Ar.Mour (Feat. Elliott Power & Miink).mp3';
+  audio.crossOrigin = 'anonymous';
   audio.play();
 
-  TweenMax.to(audio, 3, { volume: 0.75 });
+  TweenMax.to(audio, 3, { volume: 0.70 });
   then = window.performance.now();
   run();
-
-  /*  webAudioTouchUnlock(audioContext).then(
-    unlocked => {
-      if (unlocked) {
-        document.querySelector('.log').innerHTML += '<br/>ios: unlocked context ' + audioContext.state;
-      } else {
-        document.querySelector('.log').innerHTML += '<br/>no-ios: unlocked context ' + audioContext.state;
-      }
-
-      } catch (e) {
-        document.querySelector('.log').innerHTML += '<br/>' + e.toString();
-      }
-    },
-    reason => {
-      document.querySelector('.log').innerHTML += '<br/>error: ' + reason.toString();
-    }
-  ); */
 }
 
 demo();
