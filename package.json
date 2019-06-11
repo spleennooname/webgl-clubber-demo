@@ -12,7 +12,7 @@
   "scripts": {
     "build": "cross-env NODE_ENV=production webpack --mode=production --config webpack.config.js",
     "dev": "cross-env NODE_ENV=development  webpack-dev-server --mode=development --config webpack.config.js --open",
-    "deploy": "surge dist waves-clubber.surge.sh"
+    "deploy": "surge dist test-waves-clubber.surge.sh"
   },
   "bugs": {
     "url": "https://github.com/spleennooname/webgl-clubber-demo/issues"

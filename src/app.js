@@ -9,11 +9,8 @@ import fs from './glsl/frag.glsl';
 import ps from './glsl/post.glsl';
 
 import Clubber from 'clubber';
-import { AudioContext } from 'standardized-audio-context';
+//import { AudioContext } from 'standardized-audio-context';
 import GPUTools from './GPUTools';
-/* import IosUnlock from './iosUnlock'; */
-
-//import webAudioTouchUnlock from './webAudioTouchUnlock';
 
 import { TweenMax } from 'gsap';
 import * as twgl from 'twgl.js';
@@ -40,7 +37,7 @@ let canvas,
   postInfo,
   stats,
   numPoints,
-  heightArray,
+  frequencyData,
   state;
 
 let now = 0,
@@ -67,10 +64,35 @@ let cover,
   iMusicLow = [0.0, 0.0, 0.0, 0.0],
   iMusicMid = [0.0, 0.0, 0.0, 0.0],
   iMusicHigh = [0.0, 0.0, 0.0, 0.0],
-  smoothArray = [0.1, 0.1, 0.1, 0.1],
-  adaptArray = [1, 1, 1, 1];
+  smoothArray = [.1, .1, .1, .1],
+  adaptArray = [0.5, .6, 1, 1];
 
 const CLIENT_ID = '56c4f3443da0d6ce6dcb60ba341c4e8d';
+
+/**
+                      +1
+                      |
+                      |
+                      |
+                      |
+                      |
+  -1 ------------------------------------ +1
+                      |
+                      |
+                      |
+                      |
+                      |
+                      -1
+  */
+const plane = {
+  data: [-1, -1, 0, +1, -1, 0, -1, +1, 0, -1, +1, 0, +1, -1, 0, +1, +1, 0],
+  numComponents: 3,
+};
+
+const bigTriangle = {
+  data: [-1, -1, -1, 4, 4, -1],
+  numComponents: 2,
+};
 
 function demo() {
   // canvas
@@ -123,7 +145,7 @@ function initGL() {
   stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
   document.body.appendChild(stats.domElement); */
 
-  gl = twgl.getContext(canvas, { depth: false, antialiasing: true });
+  gl = twgl.getContext(canvas, { antialiasing: true });
 
   fb1 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
   fb2 = twgl.createFramebufferInfo(gl, null, bufferSize, bufferSize);
@@ -132,7 +154,7 @@ function initGL() {
   postInfo = twgl.createProgramInfo(gl, [vs, ps]);
 
   positionBuffer = twgl.createBufferInfoFromArrays(gl, {
-    position: { data: [-1, -1, -1, 4, 4, -1], numComponents: 2 },
+    position: bigTriangle,
   });
 }
 
@@ -154,7 +176,6 @@ function resize() {
   // and compute a size needed to make our drawingbuffer match it in
   // device pixels.
   //const aspectRatio = window.innerWidth / window.innerHeight;
-  //console.log( aspectRatio)
   displayWidth = bufferSize; //Math.floor(canvas.clientWidth * pixelRatio);
   displayHeight = bufferSize; //Math.floor(canvas.clientHeight * pixelRatio);
   // Check if the canvas is not the same size.
@@ -173,20 +194,21 @@ function render(time) {
 
   resize();
 
-  analyser.getByteFrequencyData(heightArray);
+  // copy current frequency dta from analyser to frequencyData array
+  // values are in dB units 0..255
+  // https://webaudio.github.io/web-audio-api/#dom-analysernode-getbytefrequencydata
+  // https://stackoverflow.com/questions/14789283/what-does-the-fft-data-in-the-web-audio-api-correspond-to
+
+  // db = energia su unita di tempo
+  // 10.log( p/p0)^2
+  analyser.getByteFrequencyData(frequencyData);
 
   if (clubber) {
-    clubber.update(null, heightArray, false);
+    clubber.update(null, frequencyData, false);
     bands.low(iMusicLow);
     bands.sub(iMusicSub);
     bands.high(iMusicHigh);
     bands.mid(iMusicMid);
-
-    let high = iMusicHigh;
-    let mid = iMusicMid;
-    let sub = iMusicSub;
-    let low = iMusicLow;
-    console.log(sub, low, mid, high);
   }
 
   gl.useProgram(programInfo.program);
@@ -203,13 +225,13 @@ function render(time) {
   twgl.bindFramebufferInfo(gl, fb2);
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
 
-  // draw fb1 in canvas
+  // draw fb2 in canvas
   gl.useProgram(postInfo.program);
   twgl.setBuffersAndAttributes(gl, postInfo, positionBuffer);
   twgl.setUniforms(postInfo, {
     uTime: time,
     uResolution: [displayWidth, displayHeight],
-    uTexture: fb1.attachments[0],
+    uTexture: fb2.attachments[0],
   });
   twgl.bindFramebufferInfo(gl, null);
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES);
@@ -257,7 +279,7 @@ function render(time) {
       time +
       '<br/>';
     //'+<br/>' +
-    //heightArray;
+    //frequencyData;
     //+ clubber.time;
   }
 }
@@ -289,13 +311,15 @@ function start() {
   TweenMax.to(cover, 0.5, { autoAlpha: 0 });
 
   audioContext = new (window.AudioContext || window.webkitAudioContext)();
-  analyser = audioContext.createAnalyser();
 
+  analyser = audioContext.createAnalyser();
+  analyser.fftSize = 2048;
+  // bins frequency from anal. half fft size 2048 / 2
   numPoints = analyser.frequencyBinCount;
 
-  analyser.fftSize = 1024;
-  heightArray = new Uint8Array(numPoints);
-  //console.log(numPoints, heightArray);
+  frequencyData = new Uint8Array(numPoints);
+  // 2^8 = 0..255
+  //console.log(numPoints, frequencyData);
 
   audio.addEventListener('canplay', event => {
     //document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
@@ -315,40 +339,40 @@ function start() {
           template: '0123',
           from: 1,
           to: 32,
+         /*  low: 1,
+          high: 127, */
           smooth: smoothArray,
           adapt: adaptArray,
-          /* low: 64,
-          high: 128, */
         }),
 
         low: clubber.band({
           template: '0123',
-          from: 32,
+          from: 33,
           to: 48,
+          /* low: 1,
+          high:127, */
           smooth: smoothArray,
           adapt: adaptArray,
-          /*  low: 64,
-          high: 128, */
         }),
 
         mid: clubber.band({
           template: '0123',
-          from: 48,
+          from: 49,
           to: 64,
+         /*  low: 1,
+          high: 127, */
           smooth: smoothArray,
           adapt: adaptArray,
-          /*  low: 64,
-          high: 128, */
         }),
 
         high: clubber.band({
           template: '0123',
-          from: 64,
-          to: 128,
+          from: 65,
+          to: 127,
+          /* low: 1,
+          high: 127, */
           smooth: smoothArray,
           adapt: adaptArray,
-          /* low: 64,
-          high: 128, */
         }),
       };
     } catch (e) {
@@ -361,13 +385,13 @@ function start() {
 
   //audio.src = 'https://api.soundcloud.com/tracks/' + tracks[0] + '/stream?client_id=' + CLIENT_ID;
   //audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
-  audio.src = 'mp3/Bagatelleop119n1.mp3';
-  //audio.src = 'mp3/shit.mp3';
+  // audio.src = 'mp3/Bagatelleop119n1.mp3';
+  audio.src = 'mp3/unkle.mp3';
   //audio.src = 'mp3/Ar.Mour (Feat. Elliott Power & Miink).mp3';
   audio.crossOrigin = 'anonymous';
   audio.play();
 
-  TweenMax.to(audio, 3, { volume: 0.70 });
+  TweenMax.to(audio, 3, { volume: 0.7 });
   then = window.performance.now();
   run();
 }

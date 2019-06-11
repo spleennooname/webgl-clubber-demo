@@ -1,4 +1,4 @@
-// by Andrea Bovo, spleennooname / 2016
+// by Andrea Bovo, spleen666@gmail.com / 2016 -20 9
 // Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 precision highp float;
@@ -51,29 +51,29 @@ float blur(float dist, float width, float blur, float intens) {
 
 float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
 
-  // 0 the note where the highest energy was seen,
-  // 1 the average note for the whole band,
-  // 2 the octave (bass vs treble) and
-  // 3 the average energy of all triggered notes.
+  /*
+  0 - Strongest power note index
+  1 - Weakest powered note index
+  2 - Power weighted note average
+  3 - Power of the strongest note
+  4 - Average energy of active notes
+  5 - Power weighted average midi index
+  6 - Power weighted average octave index
+  7 - Ratio of spectrum window area covered
+  8 - Adaptive low threshold relative to absolute limits
+  9 - Adaptive high threshold relative to absolute limits
+  */
 
-  float l = 1.0 * low[0] ;
-  float m = 1.0 * mid[0];
-  float h = 1.0 * high[0];
-  float s = 1.0 * sub[0];
-
-  float amp = mix(0., 1.0, high[1] + high[0] + sub[2] + mid[0] - .15 * i + x );
-  float fq =  2. * x - .45* time - .15 * i * mix(0., 3.0, sub[3] + mid[0] + low[0] + high[3]);
-
-  // amp. wave
+  //float amp = mix(0., 2.0, high[1] + low[1] + mid[1] - .25 * i + x );
+  //float fq =  2. * x - .25* time - .15 * i * mix(0., 3.0,  mid[2] + low[2] + high[2] );
+  float amp = mix(0., 1.0, high[1] + sub[2] + mid[0] - .2 * i + x);
+  float fq = 2. * x - .45 * time - .2 * i * mix(0., 3.0, sub[3] + mid[0] + low[0] + high[3]);
   // mix(x, y, a) = linear interpolate value between x and y with weight a
   // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
 
   //float amp =mix(0., 0.75, wa - .25*x) ;
   // float amp = .75 * smoothstep( wa - 0.5 * i, .5, x );
   //float amp = mix(0., +.75,  high[1]*.75 + high[0] + mid[0]) - .25*i;
-
-  // wave form
-  // 10. * x + 0.55 * time -
   //float fq = x*1.45  + .55*time- i * mix(-.5, +.5, sub[1] + mid[0] + low[0] + high[3]);
   //float y = amp * sin( 1.*x + 0.25 * time - .25 * i * mix(0., 1.0, wx) );
   //float y = amp * sin( fq );
@@ -81,11 +81,22 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
   return amp * sin(fq);
 }
 
-void main() {
+/** https://www.shadertoy.com/view/Md23DV
+                    0,1----------------------1,1
+                    |                         |
+                    |                         |
+                    |                         |
+                    |                         |
+                    |                         |
+-                   0,0 -------------------- 1,0
+*/
 
+void main() {
+  // U = fragCoord / R.y;                     // [0,1] vertically
+  // U = ( 2.*fragCoord - R ) / R.y;          // [-1,1] vertically
+  // U = ( fragCoord - .5*R ) / R.y;          // [-1/2,1/2] vertically
+  // U = ( 2.*fragCoord - R ) / min(R.x,R.y); // [-1,1] along the shortest side
   vec2 uv = (1. * gl_FragCoord.xy - .5 * R) / R.y;
-  //vec2 uv = (2. * gl_FragCoord.xy - 1. * R) / R.y;
-  //vec2 uv = ( fragCoord - .5*R ) / R.y;  // [-1/2,1/2] vertically
 
   float col = 0.0;
   for (float i = 0.; i < N_WAVES; i+=1.0) {
@@ -93,9 +104,12 @@ void main() {
     float b = 0.5 *i + 0.001;
     col += blur(d, 0.009, b, 0.5);
   }
-
-  // float note = smoothstep(0., 0.55, (iMusicLow[3] + iMusicMid[1] + iMusicHigh[3] * .25) / 3. );
-  float note = smoothstep(0., 1., (iMusicMid[0] * 1.0 +  iMusicHigh[3] * 0.75) / (1.0 + 0.75) ) ;
-
-  gl_FragColor = mix( vec4( vec3(abs(1. - col), 0., 0), 1.), texture2D(uTexture, uv), note);
+  // https://thebookofshaders.com/glossary/?search=smoothstep
+  float note = smoothstep( 0., 1., (iMusicLow[0] * .75 + iMusicMid[0] + iMusicHigh[3] * .75) / ( 1. + .75 + 0.75) );
+  // vec3 noteCol = mix(vec3(0.5, 0.5, 0.5), vec3(0., col, 0.), note);
+  // vec3 noteCol = 1. - vec3(col, 0.0, 0.0);
+  vec3 noteCol = vec3(col, 0.0, 0.0);
+  //float note = smoothstep(0., 1., (iMusicLow[0] * 0.75 +  iMusicHigh[3] * 0.75) / (0.75 + 0.75) ) ;
+  //gl_FragColor = mix( vec4( vec3(abs(1. - col), 0., 0), 1.), texture2D(uTexture, uv), note);
+  gl_FragColor = mix( vec4( noteCol, 1.), texture2D(uTexture, uv), note);
 }

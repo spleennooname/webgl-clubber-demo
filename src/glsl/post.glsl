@@ -10,7 +10,6 @@ uniform vec2 uResolution;
 
 void main() {
 
-  vec2 uv = (2. * gl_FragCoord.xy - .5*R) / R.y;
-
+  vec2 uv = (2. * gl_FragCoord.xy - .5 * R) / R.y;
   gl_FragColor =  texture2D(uTexture, uv);
 }
