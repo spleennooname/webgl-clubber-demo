@@ -1,3 +1,5 @@
+[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
+
 # WebGL Clubber Demo
 
 > A WebGL Audio Visualizer detecting beat&rhythm & redirect output to GLSL shader.
@@ -7,7 +9,7 @@
 ### tested on
 
 * Chrome, Huawei P9 Lite
-* Safari, iphone xr
+* Safari, iPhone XR
 
 ### Demo
 
