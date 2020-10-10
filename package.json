@@ -1,7 +1,7 @@
 {
   "name": "webgl-clubber-demo",
   "version": "1.0.2",
-  "description": "A WebGL Audio Visualizer demo. Grabbing track from Soundcloud, detect beat&rhythm & redirect output to GLSL shader.",
+  "description": "A WebGL audio/reactive experiment, where rhythm and melody are computed in MIDI bands and redirected to a GLSL shader.",
   "author": "Andrea Bovo <spleen666@gmail.com>",
   "license": "MIT",
   "private": true,

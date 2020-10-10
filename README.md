@@ -2,7 +2,7 @@
 
 # WebGL Clubber Demo
 
-> A WebGL Audio Visualizer detecting beat&rhythm & redirect output to GLSL shader.
+> A WebGL audio/reactive experiment, where rhythm and melody are computed in MIDI bands and redirected to a GLSL shader.
 
 ![screenshot](https://spleennooname.github.io/webgl-clubber-demo/screenshot.jpg)
 
@@ -10,8 +10,8 @@
 
 * Chrome, Huawei P9 Lite
 * Safari, iPhone XR
-*
-### Techs
+
+### Built with
 
 * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
 * [Clubber](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
