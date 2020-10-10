@@ -1,4 +1,4 @@
-// by Andrea Bovo, spleen666@gmail.com / 2016 -20 9
+// by Andrea Bovo, spleen666@gmail.com / 2016 -20xx
 // Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
 
 precision highp float;
@@ -70,14 +70,12 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
   float fq = 2. * x - .45 * time - .2 * i * mix(0., 3.0, sub[3] + mid[0] + low[0] + high[3]);
   // mix(x, y, a) = linear interpolate value between x and y with weight a
   // smoothstep(l, r, a) = Hermite interpolate value between x and y with weight, sigmoid-like/clamping ( with l < r)
-
   //float amp =mix(0., 0.75, wa - .25*x) ;
   // float amp = .75 * smoothstep( wa - 0.5 * i, .5, x );
   //float amp = mix(0., +.75,  high[1]*.75 + high[0] + mid[0]) - .25*i;
   //float fq = x*1.45  + .55*time- i * mix(-.5, +.5, sub[1] + mid[0] + low[0] + high[3]);
   //float y = amp * sin( 1.*x + 0.25 * time - .25 * i * mix(0., 1.0, wx) );
   //float y = amp * sin( fq );
-
   return amp * sin(fq);
 }
 
