@@ -19,7 +19,7 @@ uniform vec4 iMusicHigh;
 
 #define COLOR 0.0
 
-#define N_WAVES 8.0
+#define N_WAVES 6.0
 
 // noise
 float rand(float n) {
@@ -82,22 +82,17 @@ float wave(float x, float i, vec4 sub, vec4 low, vec4 mid, vec4 high) {
 }
 
 /** https://www.shadertoy.com/view/Md23DV
-                    0,1----------------------1,1
-                    |                         |
-                    |                         |
-                    |                         |
-                    |                         |
-                    |                         |
--                   0,0 -------------------- 1,0
+0,1----------------------1,1
+|                         |
+|                         |
+|                         |
+|                         |
+|                         |
+0,0 -------------------- 1,0
 */
 
 void main() {
-  // U = fragCoord / R.y;                     // [0,1] vertically
-  // U = ( 2.*fragCoord - R ) / R.y;          // [-1,1] vertically
-  // U = ( fragCoord - .5*R ) / R.y;          // [-1/2,1/2] vertically
-  // U = ( 2.*fragCoord - R ) / min(R.x,R.y); // [-1,1] along the shortest side
-  vec2 uv = (1. * gl_FragCoord.xy - .5 * R) / R.y;
-
+  vec2 uv = (gl_FragCoord.xy - .5 * R) / R.y;  // [-1/2,1/2] vertically
   float col = 0.0;
   for (float i = 0.; i < N_WAVES; i+=1.0) {
     float d = distance( 2. * uv.y, wave(uv.x, i, iMusicSub, iMusicLow, iMusicMid, iMusicHigh) );

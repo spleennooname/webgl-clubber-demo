@@ -9,22 +9,22 @@ import fs from './glsl/frag.glsl'
 import ps from './glsl/post.glsl'
 
 import Clubber from 'clubber'
-// import { AudioContext } from 'standardized-audio-context';
+import { AudioContext } from 'standardized-audio-context'
 import GPUTools from './GPUTools'
 
 import { TweenMax } from 'gsap'
 import * as twgl from 'twgl.js'
 
-const IS_LOG = false
+const DEBUG = true
 
 let canvas
 let gl
 let positionBuffer
-let rafID = -1
+
 let fb1
 let fb2
 let tmp
-let texture
+
 let source
 let gpuTools
 let pixelRatio = 0
@@ -34,7 +34,7 @@ let audioContext
 let analyser
 let programInfo
 let postInfo
-// let stats
+let stats
 let numPoints
 let frequencyData
 // let state
@@ -43,7 +43,7 @@ let now = 0
 let then = 0
 let fps = 60
 let interval = 1000 / fps
-
+let rafID = -1
 let bufferSize = 512
 
 const tracks = [
@@ -89,36 +89,43 @@ const adaptArray = [0.5, 0.6, 1, 1]
 } */
 
 const bigTriangle = {
-  data: [-1, -1, -1, 4, 4, -1],
+  data: [
+    -1, -1,
+    -1, 4,
+    4, -1
+  ],
   numComponents: 2
 }
 
 function demo () {
   // canvas
   canvas = document.querySelector('#canvas')
-
   try {
     gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl')
   } catch (err) {
     console.error('no WebGL in da house.')
     return
   }
-
   // audio el
   audio = document.querySelector('#audio')
   audio.crossOrigin = 'anonymous'
   audio.loop = true
   audio.volume = 0
+  //
+  canvas.addEventListener('webglcontextlost', event => {
+    console.warn('lost')
+    event.preventDefault()
+    stop()
+  }, false)
 
-  canvas.addEventListener('webglcontextlost', lost, false)
-  canvas.addEventListener('webglcontextrestored', restore, false)
-
+  canvas.addEventListener('webglcontextrestored', event => {
+    console.warn('restored')
+    demo()
+  }, false)
   // cover click
   cover = document.querySelector('.cover')
   TweenMax.to(cover.querySelector('.t'), 3.0, { autoAlpha: 1 })
-  cover.addEventListener('click', event => {
-    start()
-  })
+  cover.addEventListener('click', event => start())
 
   initGL()
   // gl.getExtension('WEBGL_lose_context').restoreContext();
@@ -135,9 +142,10 @@ function initGL () {
 
   interval = 1000 / fps
 
-  /*  stats = new Stats();
-  stats.showPanel(0); // 0: fps, 1: ms, 2: mb, 3+: custom
-  document.body.appendChild(stats.domElement); */
+  stats = new Stats()
+
+  stats.showPanel(0) // 0: fps, 1: ms, 2: mb, 3+: custom
+  document.body.appendChild(stats.domElement)
 
   gl = twgl.getContext(canvas, { antialiasing: true })
 
@@ -158,11 +166,11 @@ function run () {
   if (delta > interval) {
     then = now - (delta % interval)
     const t = now / 1000
-    // stats.begin();
+    stats.begin()
     render(t)
-    // stats.end();
+    stats.end()
   }
-  rafID = requestAnimationFrame(run)
+  rafID = window.requestAnimationFrame(run)
 }
 
 function resize () {
@@ -185,26 +193,22 @@ function render (time) {
   /*   if (audio.readyState !== 4) {
     return;
   } */
-
   resize()
-
-  // copy current frequency dta from analyser to frequencyData array
-  // values are in dB units 0..255
-  // https://webaudio.github.io/web-audio-api/#dom-analysernode-getbytefrequencydata
-  // https://stackoverflow.com/questions/14789283/what-does-the-fft-data-in-the-web-audio-api-correspond-to
-
-  // db = energia su unita di tempo
-  // 10.log( p/p0)^2
-  analyser.getByteFrequencyData(frequencyData)
-
   if (clubber) {
+    // copy current frequency dta from analyser to frequencyData array
+    // values are in dB units 0..255
+    // https://webaudio.github.io/web-audio-api/#dom-analysernode-getbytefrequencydata
+    // https://stackoverflow.com/questions/14789283/what-does-the-fft-data-in-the-web-audio-api-correspond-to
+
+    // db = energia su unita di tempo
+    // 10.log( p/p0)^2
+    analyser.getByteFrequencyData(frequencyData)
     clubber.update(null, frequencyData, false)
     bands.low(iMusicLow)
     bands.sub(iMusicSub)
     bands.high(iMusicHigh)
     bands.mid(iMusicMid)
   }
-
   gl.useProgram(programInfo.program)
   twgl.setBuffersAndAttributes(gl, programInfo, positionBuffer)
   twgl.setUniforms(programInfo, {
@@ -218,7 +222,6 @@ function render (time) {
   })
   twgl.bindFramebufferInfo(gl, fb2)
   twgl.drawBufferInfo(gl, positionBuffer, gl.TRIANGLES)
-
   // draw fb2 in canvas
   gl.useProgram(postInfo.program)
   twgl.setBuffersAndAttributes(gl, postInfo, positionBuffer)
@@ -235,7 +238,7 @@ function render (time) {
   fb1 = fb2
   fb2 = tmp
 
-  if (IS_LOG) {
+  if (DEBUG) {
     document.querySelector('.log').innerHTML =
       'devicePixelRatio=' +
       window.devicePixelRatio +
@@ -279,55 +282,36 @@ function render (time) {
 }
 
 function stop () {
-  rafID = cancelAnimationFrame(run)
+  rafID = window.cancelAnimationFrame(run)
 }
-
-function destroy () {
-  stop()
-}
-
-function lost (e) {
-  console.warn('lost')
-  event.preventDefault()
-  stop()
-}
-
-function restore (e) {
-  console.warn('restored')
-  demo()
-}
-
-function initAudio () {}
 
 function start () {
   cover.removeEventListener('click', start)
-
-  TweenMax.to(cover, 0.5, { autoAlpha: 0 })
-
-  audioContext = new (window.AudioContext || window.webkitAudioContext)()
-
+  TweenMax.to(cover, 0.25, { autoAlpha: 0 })
+  //
+  audioContext = new AudioContext()// (window.AudioContext || window.webkitAudioContext)()
+  //
   analyser = audioContext.createAnalyser()
   analyser.fftSize = 2048
   // bins frequency from anal. half fft size 2048 / 2
   numPoints = analyser.frequencyBinCount
-
+  //
   frequencyData = new Uint8Array(numPoints)
   // 2^8 = 0..255
   // console.log(numPoints, frequencyData);
-
   audio.addEventListener('canplay', event => {
     // document.querySelector('.log').innerHTML += '<br/>set audiocontext on canplay';
     try {
       source = audioContext.createMediaElementSource(audio)
       source.connect(analyser)
-
+      //
       analyser.connect(audioContext.destination)
-
+      //
       clubber = new Clubber({
         context: audioContext,
         analyser: analyser
       })
-
+      //
       bands = {
         sub: clubber.band({
           template: '0123',
@@ -369,20 +353,16 @@ function start () {
           adapt: adaptArray
         })
       }
-    } catch (e) {
-      console.log(e.toString())
+    } catch (err) {
+      console.error(err)
     }
   })
-  audio.addEventListener('error', function (e) {
-    console.log(e.toString())
-  })
-
+  audio.addEventListener('error', err => console.error(err.toString()))
   // audio.src = 'https://api.soundcloud.com/tracks/' + tracks[0] + '/stream?client_id=' + CLIENT_ID;
   // audio.src = 'https://greggman.github.io/doodles/sounds/DOCTOR VOX - Level Up.mp3';
-  audio.src = 'mp3/Bagatelleop119n1.mp3'
+  audio.src = './mp3/Bagatelleop119n1.mp3'
   // audio.src = 'mp3/unkle.mp3'
   // audio.src = 'mp3/Ar.Mour (Feat. Elliott Power & Miink).mp3';
-  audio.crossOrigin = 'anonymous'
   audio.play()
 
   TweenMax.to(audio, 3, { volume: 0.7 })
@@ -390,4 +370,4 @@ function start () {
   run()
 }
 
-demo()
+window.addEventListener('load', event => demo())
