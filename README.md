@@ -4,17 +4,13 @@
 
 > A WebGL Audio Visualizer detecting beat&rhythm & redirect output to GLSL shader.
 
-![screenshot](https://spleennooname.github.io/webgl-clubber-demo/screenshot.png)
+![screenshot](https://spleennooname.github.io/webgl-clubber-demo/screenshot.jpg)
 
 ### tested on
 
 * Chrome, Huawei P9 Lite
 * Safari, iPhone XR
-
-### Demo
-
-[https://waves-clubber.surge.sh](https://waves-clubber.surge.sh])
-
+*
 ### Techs
 
 * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
@@ -33,6 +29,10 @@
 * [Audio Spectrum](http://www.teachmeaudio.com/mixing/techniques/audio-spectrum)
 
 ### Changelog
+* 10/10/2020
+	- update deps
+	- some cq (code quality)
+	- update screenshot
 * 21/04/2019
 	- iOS Safari done! whatta mess.
 	- add terser plugin in webpack
