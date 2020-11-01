@@ -21,7 +21,7 @@
 * [greggman](https://github.com/greggman) for TWGL.js
 * [wizgrav](https://github.com/wizgrav) for ClubberJS
 * [pavle-goloskokovic](https://github.com/pavle-goloskokovic) for WebAudio Unlock ios
-* [pavle-goloskokovic](https://github.com/pavle-goloskokovic) for gentle tips
+* [pavle-goloskokovic](https://github.com/pavle-goloskokovic) for tips
 
 ### refs
 * [Unlocking Web Audio for iOS](https://github.com/pavle-goloskokovic/web-audio-touch-unlock)
