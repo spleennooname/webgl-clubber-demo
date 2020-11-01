@@ -14,7 +14,7 @@
 ### Built with
 
 * [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
-* [Clubber](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
+* [ClubberJS](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
 
 ### Creditz
 
