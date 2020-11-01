@@ -16,7 +16,7 @@
 * [TWGL.js](https://twgljs.org/) - Tiny, efficient WebGL helper Library
 * [ClubberJS](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
 
-### Creditz
+### Creditzzz
 
 * [greggman](https://github.com/greggman) for TWGL.js
 * [wizgrav](https://github.com/wizgrav) for ClubberJS
