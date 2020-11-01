@@ -13,7 +13,7 @@
 
 ### Built with
 
-* [TWGL.js](https://twgljs.org/) - tiny, efficient WebGL helper Library
+* [TWGL.js](https://twgljs.org/) - Tiny, efficient WebGL helper Library
 * [ClubberJS](https://github.com/wizgrav/clubber) - THE javascript rhythm analysis library
 
 ### Creditz
