@@ -2,6 +2,7 @@
 
 [![Node.js](https://img.shields.io/badge/Node.js-14.21.3-green.svg)](https://nodejs.org/)
 [![npm](https://img.shields.io/badge/npm-6.14.18-red.svg)](https://www.npmjs.com/)
+[![TWGL.js](https://img.shields.io/badge/TWGL.js-4.16.1-blue.svg)](https://twgljs.org/)
 [![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
 
 > A WebGL audio/reactive experiment, where rhythm and melody are computed in MIDI bands and redirected to GLSL shader.
