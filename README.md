@@ -1,12 +1,14 @@
-[![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
-
 # WebGL Clubber Demo
 
-> A WebGL audio/reactive experiment, where rhythm and melody are computed in MIDI bands and redirected to a GLSL shader.
+[![Node.js](https://img.shields.io/badge/Node.js-14.21.3-green.svg)](https://nodejs.org/)
+[![npm](https://img.shields.io/badge/npm-6.14.18-red.svg)](https://www.npmjs.com/)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](#)
+
+> A WebGL audio/reactive experiment, where rhythm and melody are computed in MIDI bands and redirected to GLSL shader.
 
 ![screenshot](https://spleennooname.github.io/webgl-clubber-demo/screenshot.jpg)
 
-### tested on
+## tested on
 
 * Chrome, Huawei P9 Lite
 * Safari, iPhone XR
@@ -24,25 +26,9 @@
 * [pavle-goloskokovic](https://github.com/pavle-goloskokovic) for tips
 
 ### refs
+
 * [Unlocking Web Audio for iOS](https://github.com/pavle-goloskokovic/web-audio-touch-unlock)
 * [MIDI Note table](http://subsynth.sourceforge.net/midinote2freq.html)
 * [Audio Spectrum](http://www.teachmeaudio.com/mixing/techniques/audio-spectrum)
 
-### Changelog
-* 10/10/2020
-	- update deps
-	- some cq (code quality)
-	- update screenshot
-* 21/04/2019
-	- iOS Safari done! whatta mess.
-	- add terser plugin in webpack
-	- refactoring frag
-* 20/04/2019
-	- try to fix webaudio context lock in Safari
-* 12/04/2019
-	- massive rebuild
-* 29/09/2017
-	- tweak thresholdFactor
-* 09/10/2017
-	- bundle-ize with Webpack
-	- +1 band added
+See [CHANGELOG.md](CHANGELOG.md) for version history.

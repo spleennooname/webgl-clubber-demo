@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(volta pin:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run format:*)",
+      "Bash(rm:*)"
+    ],
+    "deny": []
+  }
+}
